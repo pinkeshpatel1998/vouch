@@ -77,7 +77,10 @@ export function Avatar({
 }) {
   // Tint from the space's accent hue, not a random one, so a wall of avatars
   // stays harmonious whatever accent the owner picks.
-  const spread = ([...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 5) * 22 - 44;
+  const offset = ([...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 5) * 22 - 44;
+  // `calc(h + -44)` is invalid CSS -- the sign has to be the operator, or the
+  // whole colour fails to parse and the avatar falls back to an unbranded hue.
+  const spread = `${offset < 0 ? "-" : "+"} ${Math.abs(offset)}`;
   return (
     <span
       className={cn(
@@ -90,10 +93,10 @@ export function Avatar({
         fontSize: Math.round(size * 0.36),
         background: src
           ? undefined
-          : `oklch(from var(--v-accent) 0.9 0.05 calc(h + ${spread}))`,
+          : `oklch(from var(--v-accent) 0.9 0.05 calc(h ${spread}))`,
         color: src
           ? undefined
-          : `oklch(from var(--v-accent) 0.38 0.1 calc(h + ${spread}))`,
+          : `oklch(from var(--v-accent) 0.38 0.1 calc(h ${spread}))`,
       }}
     >
       {src ? (

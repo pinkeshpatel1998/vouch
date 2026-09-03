@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "build:widget": "esbuild widget/embed.ts --bundle --minify --format=iife --target=es2019 --outfile=public/embed.js"
+    "build:widget": "esbuild widget/embed.ts --bundle --minify --format=iife --target=es2019 --outfile=public/embed.js",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.5",
@@ -27,6 +28,7 @@
     "@types/react": "^19.1.0",
     "@types/react-dom": "^19.1.0",
     "esbuild": "^0.28.2",
+    "puppeteer-core": "^24.43.1",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3"
   }
