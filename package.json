@@ -1,0 +1,33 @@
+{
+  "name": "vouch",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run build:widget && next dev",
+    "build": "npm run build:widget && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "build:widget": "esbuild widget/embed.ts --bundle --minify --format=iife --target=es2019 --outfile=public/embed.js"
+  },
+  "dependencies": {
+    "@supabase/ssr": "^0.12.5",
+    "@supabase/supabase-js": "^2.109.0",
+    "clsx": "^2.1.1",
+    "next": "^15.4.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^3.3.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.11",
+    "@types/node": "^22.15.0",
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "esbuild": "^0.28.2",
+    "tailwindcss": "^4.1.11",
+    "typescript": "^5.8.3"
+  }
+}

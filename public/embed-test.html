@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Vouch embed — hostile host test</title>
+<style>
+  /* Deliberately aggressive host CSS. If any of this reaches the widget, the
+     shadow root is not doing its job. */
+  * { font-family: "Comic Sans MS", cursive !important; box-sizing: content-box; }
+  div { border: 3px dashed magenta !important; background: yellow !important; }
+  figure, blockquote { margin: 60px !important; color: lime !important; }
+  button { background: red !important; border-radius: 0 !important; padding: 30px !important; }
+  img { filter: invert(1) !important; }
+  body { background: #101014; color: #fff; margin: 0; padding: 32px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.note { opacity: .6; font-size: 13px; margin: 0 0 24px; }
+  .host-proof { padding: 12px; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+  <h1>Hostile host page</h1>
+  <p class="note">
+    Every rule above is <code>!important</code>. The box below proves they apply to the host.
+    The widget underneath must be untouched by them.
+  </p>
+
+  <div class="host-proof">Host element — should be Comic Sans on yellow with a magenta dashed border.</div>
+
+  <script src="/embed.js" data-wall="demo" async></script>
+</body>
+</html>
