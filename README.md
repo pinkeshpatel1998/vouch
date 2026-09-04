@@ -57,7 +57,7 @@ Layout, theme, accent, item count — with a live preview rendering the **actual
 
 ## How the embed works
 
-The widget is **4.8 kB gzipped** — vanilla TypeScript, no dependencies, rendered into a shadow root.
+The widget is **4.7 kB gzipped** — vanilla TypeScript, no dependencies, rendered into a shadow root.
 
 <img src="docs/screens/isolation.png" alt="A deliberately hostile host page where every CSS rule is !important — the widget renders untouched" width="900">
 
@@ -79,10 +79,11 @@ One subtlety worth knowing if you build something similar: **a shadow root prote
 <img src="docs/screens/dashboard.png" alt="The spaces dashboard showing a designed empty state" width="900">
 
 - **One accent variable.** `--v-accent` is the only brand colour; hover, press, soft, line, text and focus-ring tints all derive from it with `color-mix`. A space owner picks one colour and cannot produce an unreadable pairing — the same mechanism brands the collection page and the embedded wall.
-- **Fraunces** for display, with the `WONK` and `SOFT` axes on. **Instrument Sans** for UI. No Inter.
-- **Three shadow levels**, not seven. Anything wanting a fourth gets a border.
+- **Dark app, themeable wall.** The chrome is dark indigo. The wall keeps a full light palette scoped to an element, because a widget has to render on whatever site it lands on.
+- **Inter throughout**, headings at weight 500. Weight and tracking do the work a second family used to.
+- **Elevation is a hairline ring**, not a drop shadow — on a dark ground a blurred shadow reads as smudge.
+- **Rules fade out** 48px from each end; table row rules are row-level strips so the fade spans the row.
 - **One motion moment** — cards settling into the wall. Everything else is a 120–220ms colour transition.
-- Warm oklch neutrals, so surfaces read as paper rather than default grey.
 
 Full rationale and the rules that go with it: **[DESIGN.md](DESIGN.md)**.
 
@@ -153,7 +154,9 @@ scripts/screenshots.mjs           regenerates the images above
 | Route | |
 |---|---|
 | `/` | marketing page |
-| `/app` | spaces, with a one-click demo space |
+| `/app` | spaces, counts and a recent-activity table |
+| `/app/submissions` | every submission across every space |
+| `/app/account` | account and totals |
 | `/app/[space]/inbox` | approve, reject, edit, delete |
 | `/app/[space]/wall` | layout, theme, accent, live preview, three embed formats |
 | `/app/[space]/settings` | branding, prompt, toggles, collection link, QR code |

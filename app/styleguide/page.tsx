@@ -6,16 +6,15 @@ import { Input, Textarea, Field, CharGuide } from "@/components/ui/field";
 import { Card, Badge, Avatar, Skeleton, EmptyState } from "@/components/ui/primitives";
 import { Stars, StarInput } from "@/components/ui/stars";
 import { Switch } from "@/components/ui/switch";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { TestimonialCard, QuoteCard } from "@/components/testimonial-card";
 import { sampleTestimonials } from "@/lib/sample";
 
 const ACCENTS = [
-  { name: "Clay", value: "oklch(0.582 0.148 38)" },
-  { name: "Pine", value: "oklch(0.520 0.108 165)" },
-  { name: "Ink", value: "oklch(0.430 0.118 268)" },
-  { name: "Plum", value: "oklch(0.508 0.148 336)" },
-  { name: "Ochre", value: "oklch(0.652 0.128 78)" },
+  { name: "Blurple", value: "#9184d9" },
+  { name: "Sage", value: "#7fb2a6" },
+  { name: "Clay", value: "#c98f6a" },
+  { name: "Steel", value: "#6f8fd0" },
+  { name: "Bone", value: "#ded8cf" },
 ];
 
 function Section({
@@ -92,7 +91,6 @@ export default function Styleguide() {
                 />
               ))}
             </div>
-            <ThemeToggle />
           </div>
         </div>
       </header>
@@ -110,21 +108,21 @@ export default function Styleguide() {
       <Section
         id="type"
         title="Typography"
-        note="Fraunces for display — variable optical size with the WONK axis on, which is what stops it reading as a stock serif. Instrument Sans for UI. JetBrains Mono for embed snippets. No Inter anywhere."
+        note="Nocturne runs on one typeface. Inter at weight 500 for headings, 400 for body — weight and tracking do the work a second family used to. JetBrains Mono for embed snippets only."
       >
         <div className="space-y-6">
           <div>
             <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-subtle">
-              Display / Fraunces
+              Display / Inter 500
             </p>
             <p className="font-display text-[64px] leading-[0.95] tracking-[-0.035em] text-ink">
-              Proof, not promises
+              Ask once.
             </p>
           </div>
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
               <p className="mb-2 font-mono text-[11px] uppercase tracking-wider text-subtle">
-                UI / Instrument Sans
+                UI / Inter 400
               </p>
               <p className="text-[15px] leading-relaxed text-ink">
                 Collect text and video testimonials through a link you send, approve the good ones,
@@ -239,7 +237,7 @@ export default function Styleguide() {
           <Row label="Variants">
             <Button variant="primary">Approve</Button>
             <Button variant="secondary">Edit text</Button>
-            <Button variant="soft">Copy link</Button>
+            <Button variant="secondary">Copy link</Button>
             <Button variant="ghost">Reject</Button>
             <Button variant="danger">Delete</Button>
           </Row>

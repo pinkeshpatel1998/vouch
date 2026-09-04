@@ -10,7 +10,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "bg-surface border border-line rounded-lg",
+        "bg-surface rounded-md",
         elevated ? "shadow-mid" : "shadow-low",
         className,
       )}
@@ -20,12 +20,14 @@ export function Card({
 }
 
 /* ---------------- Badge ---------------- */
+/* Nocturne tags are solid chips off the ramps, not tinted outlines. */
 const tones = {
-  neutral: "bg-sunk text-muted border-line",
-  pending: "bg-warning/12 text-warning border-warning/25",
-  approved: "bg-success/12 text-success border-success/25",
-  rejected: "bg-danger/10 text-danger border-danger/25",
-  accent: "bg-accent-soft text-accent-text border-accent-line",
+  neutral: "bg-n800 text-n100",
+  pending: "bg-[color-mix(in_srgb,var(--v-warning)_28%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-warning)_92%,white)]",
+  approved: "bg-[color-mix(in_srgb,var(--v-success)_26%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-success)_92%,white)]",
+  rejected: "bg-[color-mix(in_srgb,var(--v-danger)_24%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-danger)_92%,white)]",
+  accent: "bg-[var(--v-accent-800)] text-[var(--v-accent-100)]",
+  outline: "border border-accent text-accent",
 } as const;
 
 export function Badge({
@@ -42,7 +44,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11.5px] font-medium tracking-[0.01em]",
+        "inline-flex items-center gap-1.5 rounded-[6px] px-2.5 py-[3px] text-[11px] tracking-[0.02em]",
         tones[tone],
         className,
       )}
@@ -91,12 +93,15 @@ export function Avatar({
         width: size,
         height: size,
         fontSize: Math.round(size * 0.36),
+        // Mixed against the current surface and text rather than pinned to
+        // fixed lightnesses, so one rule works on the dark app and on a light
+        // wall embedded in someone else's site.
         background: src
           ? undefined
-          : `oklch(from var(--v-accent) 0.9 0.05 calc(h ${spread}))`,
+          : `color-mix(in srgb, oklch(from var(--v-accent) 0.62 0.1 calc(h ${spread})) 26%, var(--v-surface))`,
         color: src
           ? undefined
-          : `oklch(from var(--v-accent) 0.38 0.1 calc(h ${spread}))`,
+          : `color-mix(in srgb, oklch(from var(--v-accent) 0.7 0.11 calc(h ${spread})) 72%, var(--v-text))`,
       }}
     >
       {src ? (
@@ -132,16 +137,16 @@ export function EmptyState({
     <div
       className={cn(
         "flex flex-col items-center justify-center text-center px-6 py-14",
-        "rounded-xl border border-dashed border-line bg-sunk/40",
+        "rounded-lg border border-dashed border-line bg-sunk/50",
         className,
       )}
     >
       {icon && (
-        <div className="mb-4 grid size-12 place-items-center rounded-xl border border-accent-line bg-accent-soft text-accent-text">
+        <div className="mb-4 grid size-11 place-items-center rounded-md border border-accent-line bg-accent-soft text-accent">
           {icon}
         </div>
       )}
-      <h3 className="font-display text-xl text-ink">{title}</h3>
+      <h3 className="font-display text-[20px] text-ink">{title}</h3>
       {body && <p className="mt-1.5 max-w-sm text-sm leading-relaxed text-muted">{body}</p>}
       {action && <div className="mt-5">{action}</div>}
     </div>

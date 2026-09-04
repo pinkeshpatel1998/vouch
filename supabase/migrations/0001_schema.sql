@@ -47,7 +47,7 @@ create table public.spaces (
                      check (slug ~ '^[a-z0-9](?:[a-z0-9-]{1,46}[a-z0-9])$'),
   name             text not null check (char_length(name) between 1 and 80),
   logo_url         text,
-  accent_color     text not null default 'oklch(0.582 0.148 38)'
+  accent_color     text not null default '#9184d9'
                      check (char_length(accent_color) <= 64),
 
   prompt_question  text not null default 'What did we help you achieve?'

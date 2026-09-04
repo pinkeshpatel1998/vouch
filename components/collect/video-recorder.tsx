@@ -29,9 +29,12 @@ function pickMimeType(): string | undefined {
 type Phase = "idle" | "requesting" | "ready" | "countdown" | "recording" | "review";
 
 export function VideoRecorder({
+  prompt,
   onDone,
   onCancel,
 }: {
+  /** The space's question, shown over the live preview while recording. */
+  prompt?: string;
   onDone: (result: { blob: Blob; durationSeconds: number; posterDataUrl: string | null }) => void;
   onCancel: () => void;
 }) {
@@ -229,6 +232,19 @@ export function VideoRecorder({
           </div>
         )}
 
+        {/* The question, on the glass. Someone recording cannot read a prompt
+            that sits above the viewfinder -- they are looking at the lens. */}
+        {prompt && (phase === "ready" || phase === "countdown" || phase === "recording") && (
+          <div className="pointer-events-none absolute inset-x-3 bottom-3 rounded-md bg-black/55 p-3 backdrop-blur-sm">
+            <p className="text-[13.5px] font-medium leading-snug text-white">
+              &ldquo;{prompt}&rdquo;
+            </p>
+            <p className="mt-1 text-[12px] leading-snug text-white/65">
+              Say your name and company first — it makes the clip usable on its own.
+            </p>
+          </div>
+        )}
+
         {phase === "countdown" && (
           <div className="absolute inset-0 grid place-items-center bg-black/45">
             <span
@@ -308,9 +324,27 @@ export function VideoRecorder({
         )}
 
         {phase === "recording" && (
-          <Button size="lg" variant="danger" onClick={stopRecording}>
-            Stop recording
-          </Button>
+          <div className="flex w-full items-center justify-center gap-8">
+            <button
+              type="button"
+              onClick={() => {
+                stopRecording();
+                onCancel();
+              }}
+              className="text-[14px] text-muted transition-colors hover:text-ink"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={stopRecording}
+              aria-label="Stop recording"
+              className="grid size-14 place-items-center rounded-full border-2 border-line-strong transition-transform duration-[120ms] hover:scale-105"
+            >
+              <span className="size-6 rounded-[4px] bg-danger" />
+            </button>
+            <span className="w-[52px]" aria-hidden />
+          </div>
         )}
 
         {phase === "review" && (

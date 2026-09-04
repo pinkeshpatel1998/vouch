@@ -30,12 +30,12 @@ const THEMES: Array<{ key: Theme; label: string }> = [
 ];
 
 const ACCENTS = [
-  "oklch(0.582 0.148 38)",
-  "oklch(0.520 0.108 165)",
-  "oklch(0.430 0.118 268)",
-  "oklch(0.508 0.148 336)",
-  "oklch(0.652 0.128 78)",
-  "oklch(0.400 0.020 260)",
+  "#9184d9", // blurple — the system default
+  "#7fb2a6", // sage
+  "#c98f6a", // clay
+  "#6f8fd0", // steel
+  "#d98fa8", // rose
+  "#ded8cf", // bone
 ];
 
 type SnippetTab = "script" | "html" | "iframe";
@@ -87,6 +87,7 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
   );
 
   const [tab, setTab] = React.useState<SnippetTab>("script");
+  const [device, setDevice] = React.useState<"desktop" | "mobile">("desktop");
   const [copied, setCopied] = React.useState(false);
   const [origin, setOrigin] = React.useState("https://vouch.app");
 
@@ -289,26 +290,83 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
 
         {/* ---------- preview ---------- */}
         <div className="min-w-0">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-[13px] font-medium text-ink">Live preview</p>
-            <p className="text-[12px] text-subtle">
-              {payload?.testimonials.length ?? 0} of {wall.max_items} shown
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-[13px] text-muted">
+              Live preview — the real widget
+              <span className="ml-2 text-subtle">
+                {payload?.testimonials.length ?? 0} of {wall.max_items} shown
+              </span>
             </p>
+            <div className="flex items-center gap-2">
+              {/* Most submitters are on a phone, so the owner should be able to
+                  check the narrow case without leaving the builder. */}
+              <div
+                role="radiogroup"
+                aria-label="Preview width"
+                className="inline-flex overflow-hidden rounded-md border border-line"
+              >
+                {(
+                  [
+                    ["desktop", "Desktop", "M2.5 4.75A1.25 1.25 0 0 1 3.75 3.5h12.5a1.25 1.25 0 0 1 1.25 1.25v7.5a1.25 1.25 0 0 1-1.25 1.25H11v1.5h2a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1 0-1.5h2v-1.5H3.75a1.25 1.25 0 0 1-1.25-1.25v-7.5Z"],
+                    ["mobile", "Mobile", "M6 2.5h8A1.5 1.5 0 0 1 15.5 4v12a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 16V4A1.5 1.5 0 0 1 6 2.5Zm2.75 12a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z"],
+                  ] as Array<["desktop" | "mobile", string, string]>
+                ).map(([key, label, icon], i) => (
+                  <button
+                    key={key}
+                    type="button"
+                    role="radio"
+                    aria-checked={device === key}
+                    aria-label={label}
+                    onClick={() => setDevice(key)}
+                    className={cn(
+                      "px-2.5 py-1.5 transition-colors duration-[120ms]",
+                      i > 0 && "border-l border-line",
+                      device === key
+                        ? "text-accent shadow-[inset_0_0_0_1px_var(--v-accent)]"
+                        : "text-muted hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)]",
+                    )}
+                  >
+                    <svg viewBox="0 0 20 20" className="size-4" fill="currentColor" aria-hidden>
+                      <path d={icon} />
+                    </svg>
+                  </button>
+                ))}
+              </div>
+              <a
+                href={`/embed/${wall.id}`}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-[12.5px] text-muted transition-colors hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)] hover:text-ink"
+              >
+                Open standalone
+                <svg viewBox="0 0 16 16" className="size-3" fill="currentColor" aria-hidden>
+                  <path d="M6 3.5a.75.75 0 0 0 0 1.5h2.44L4.22 9.22a.75.75 0 1 0 1.06 1.06L9.5 6.06V8.5a.75.75 0 0 0 1.5 0v-4a.75.75 0 0 0-.75-.75H6Z" />
+                  <path d="M3.5 5.75A2.25 2.25 0 0 1 5.75 3.5h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 0-.75.75v4.5c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-1a.75.75 0 0 1 1.5 0v1a2.25 2.25 0 0 1-2.25 2.25h-4.5A2.25 2.25 0 0 1 3.5 10.25v-4.5Z" />
+                </svg>
+              </a>
+            </div>
           </div>
 
           <div
             className={cn(
               "rounded-xl border border-line p-5 sm:p-7",
-              wall.theme === "dark" ? "bg-[oklch(0.164_0.010_68)]" : "",
-              wall.theme === "light" ? "bg-[oklch(0.986_0.005_92)]" : "",
-              wall.theme === "auto" ? "bg-sunk/40" : "",
+              wall.theme === "dark" ? "bg-[#161826]" : "",
+              wall.theme === "light" ? "bg-white" : "",
+              wall.theme === "auto" ? "bg-sunk" : "",
             )}
           >
-            {payload ? (
-              <WallRender payload={payload} />
-            ) : (
-              <Skeleton className="h-72 w-full rounded-lg" />
-            )}
+            <div
+              className={cn(
+                "mx-auto transition-[max-width] duration-[220ms] ease-[var(--v-ease-out)]",
+                device === "mobile" ? "max-w-[380px]" : "max-w-none",
+              )}
+            >
+              {payload ? (
+                <WallRender payload={payload} />
+              ) : (
+                <Skeleton className="h-72 w-full rounded-lg" />
+              )}
+            </div>
           </div>
 
           {/* ---------- snippet ---------- */}
@@ -345,7 +403,10 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
               </Button>
             </div>
 
-            <p className="mt-3 text-[12.5px] leading-relaxed text-muted">
+            <p className="mt-3 text-[12px] leading-relaxed text-subtle">
+              Widget weighs 4.8kb gzipped. Shadow DOM, no framework.
+            </p>
+            <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
               {tab === "script"
                 ? "One tag, anywhere in your HTML. Renders in a shadow root, so your site's CSS and the widget's cannot reach each other."
                 : tab === "html"

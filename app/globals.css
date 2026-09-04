@@ -11,71 +11,81 @@
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
-:root {
-  /* --- warm neutral ramp (oklch, hue ~65-90) --- */
-  --v-ink-950: oklch(0.176 0.012 65);
-  --v-ink-900: oklch(0.238 0.012 65);
-  --v-ink-800: oklch(0.318 0.011 65);
-  --v-ink-700: oklch(0.418 0.010 65);
-  --v-ink-600: oklch(0.520 0.009 68);
-  --v-ink-500: oklch(0.620 0.008 70);
-  --v-ink-400: oklch(0.722 0.007 72);
-  --v-ink-300: oklch(0.822 0.006 78);
-  --v-ink-200: oklch(0.892 0.005 82);
-  --v-ink-100: oklch(0.940 0.004 85);
-  --v-ink-50:  oklch(0.972 0.004 88);
-  --v-paper:   oklch(0.986 0.005 92);
+/* ============================================================
+   NOCTURNE — dark indigo ground, blurple accent.
+   Ported from the Claude Design spec (docs/design-import).
 
-  /* --- accent: clay. One knob. Everything below is derived. --- */
-  --v-accent: oklch(0.582 0.148 38);
+   The app is dark. The *wall* is not: a widget has to render on
+   whatever site it lands on, so [data-theme="light"] below still
+   produces a full light palette for the builder preview and the
+   embed. That split is why the theme blocks are element-scoped.
+   ============================================================ */
+
+:root {
+  /* --- neutral ramp, one shared OKLCH lightness scale --- */
+  --v-neutral-100: #f3f5fe;
+  --v-neutral-200: #e4e7f5;
+  --v-neutral-300: #cfd3e5;
+  --v-neutral-400: #b2b6ca;
+  --v-neutral-500: #9397ab;
+  --v-neutral-600: #75798c;
+  --v-neutral-700: #595d6c;
+  --v-neutral-800: #3f424d;
+  --v-neutral-900: #292b31;
+
+  /* --- accent: blurple. One knob; everything below derives. --- */
+  --v-accent: #9184d9;
+
+  --v-accent-100: #f5f4ff;
+  --v-accent-200: #e7e5fe;
+  --v-accent-300: #d2cefd;
+  --v-accent-400: #b5abfc;
+  --v-accent-500: #968ae0;
+  --v-accent-600: #796cbf;
+  --v-accent-700: #5d5294;
+  --v-accent-800: #423a6a;
+  --v-accent-900: #2b2741;
 
   /* --- status --- */
-  --v-success: oklch(0.585 0.128 158);
-  --v-warning: oklch(0.712 0.148 76);
-  --v-danger:  oklch(0.578 0.196 25);
+  --v-success: #7fb2a6;
+  --v-warning: #d8a657;
+  --v-danger:  #d97e7e;
 
-  /* --- semantic surfaces (light). Repeated on [data-theme="light"] below so a
-         nested container can opt back into light inside a dark page. --- */
-  --v-bg:            var(--v-paper);
-  --v-surface:       oklch(1 0 0);
-  --v-surface-sunk:  var(--v-ink-50);
-  --v-surface-hover: var(--v-ink-50);
-  --v-border:        oklch(0.892 0.005 82 / 0.9);
-  --v-border-strong: var(--v-ink-300);
-  --v-text:          var(--v-ink-950);
-  --v-text-muted:    var(--v-ink-600);
-  --v-text-subtle:   var(--v-ink-500);
-  --v-text-onaccent: oklch(0.99 0.005 60);
+  /* --- semantic surfaces (dark is the default here) --- */
+  --v-bg:            #161826;
+  --v-surface:       #232532;
+  --v-surface-sunk:  #12141d;
+  --v-surface-hover: #2b2e3d;
+  --v-border:        color-mix(in srgb, #e9e9ed 16%, transparent);
+  --v-border-strong: var(--v-neutral-700);
+  --v-text:          #e9e9ed;
+  --v-text-muted:    color-mix(in srgb, #e9e9ed 70%, transparent);
+  --v-text-subtle:   color-mix(in srgb, #e9e9ed 52%, transparent);
+  --v-text-onaccent: #14121f;
 
-  /* --- accent derivations: never hand-pick a second brand colour --- */
-  --v-accent-hover: color-mix(in oklab, var(--v-accent) 88%, black);
-  --v-accent-press: color-mix(in oklab, var(--v-accent) 76%, black);
-  --v-accent-soft:  color-mix(in oklab, var(--v-accent) 12%, var(--v-surface));
-  --v-accent-line:  color-mix(in oklab, var(--v-accent) 28%, var(--v-border));
-  --v-accent-text:  color-mix(in oklab, var(--v-accent) 82%, var(--v-ink-950));
-  --v-ring:         color-mix(in oklab, var(--v-accent) 55%, transparent);
+  /* --- accent derivations --- */
+  --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, white);
+  --v-accent-press: color-mix(in oklab, var(--v-accent) 74%, black);
+  --v-accent-soft:  color-mix(in srgb, var(--v-accent) 14%, transparent);
+  --v-accent-line:  color-mix(in srgb, var(--v-accent) 42%, transparent);
+  --v-accent-text:  color-mix(in oklab, var(--v-accent) 82%, white);
+  --v-ring:         color-mix(in srgb, var(--v-accent) 40%, transparent);
 
-  /* --- radius scale --- */
-  --v-radius-xs: 0.25rem;
-  --v-radius-sm: 0.375rem;
-  --v-radius-md: 0.625rem;
-  --v-radius-lg: 0.875rem;
-  --v-radius-xl: 1.25rem;
-  --v-radius-2xl: 1.75rem;
+  /* --- radius --- */
+  --v-radius-xs: 4px;
+  --v-radius-sm: 6px;
+  --v-radius-md: 8px;
+  --v-radius-lg: 14px;
+  --v-radius-xl: 18px;
+  --v-radius-2xl: 24px;
 
-  /* --- exactly three shadow levels, warm-tinted --- */
-  --v-shadow-low:
-    0 1px 1px oklch(0.24 0.012 65 / 0.04),
-    0 1px 2px oklch(0.24 0.012 65 / 0.06);
-  --v-shadow-mid:
-    0 1px 2px oklch(0.24 0.012 65 / 0.04),
-    0 6px 14px -3px oklch(0.24 0.012 65 / 0.08);
-  --v-shadow-high:
-    0 2px 4px oklch(0.24 0.012 65 / 0.04),
-    0 12px 24px -6px oklch(0.24 0.012 65 / 0.10),
-    0 32px 56px -20px oklch(0.24 0.012 65 / 0.14);
+  /* --- elevation: a hairline ring plus ambient darkness, not a soft
+         drop shadow. On a dark ground a blurred shadow reads as smudge. --- */
+  --v-shadow-low:  0 0 0 1px var(--v-neutral-800);
+  --v-shadow-mid:  0 0 0 1px var(--v-neutral-700), 0 6px 18px rgba(0, 0, 0, 0.55);
+  --v-shadow-high: 0 0 0 1px var(--v-neutral-500), 0 16px 40px rgba(0, 0, 0, 0.65);
 
-  /* --- motion. One considered moment, so keep the vocabulary tiny. --- */
+  /* --- motion --- */
   --v-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --v-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
   --v-dur-fast: 120ms;
@@ -83,80 +93,49 @@
   --v-dur-slow: 420ms;
 }
 
-/* system dark, unless the user explicitly chose light */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --v-bg:            oklch(0.164 0.010 68);
-    --v-surface:       oklch(0.208 0.011 68);
-    --v-surface-sunk:  oklch(0.144 0.010 68);
-    --v-surface-hover: oklch(0.248 0.012 68);
-    --v-border:        oklch(0.318 0.011 68 / 0.9);
-    --v-border-strong: oklch(0.418 0.010 68);
-    --v-text:          oklch(0.968 0.005 88);
-    --v-text-muted:    oklch(0.742 0.008 74);
-    --v-text-subtle:   oklch(0.622 0.008 70);
-    /* Only a lift of the default; an inline --v-accent from a space wins. */
-    --v-accent:        oklch(0.672 0.142 40);
-    --v-accent-hover:  color-mix(in oklab, var(--v-accent) 88%, white);
-    --v-accent-press:  color-mix(in oklab, var(--v-accent) 76%, white);
-    --v-accent-soft:   color-mix(in oklab, var(--v-accent) 16%, var(--v-surface));
-    --v-accent-text:   color-mix(in oklab, var(--v-accent) 78%, oklch(0.98 0 0));
-    --v-text-onaccent: oklch(0.16 0.012 60);
-    --v-shadow-low:  0 1px 2px oklch(0 0 0 / 0.34);
-    --v-shadow-mid:  0 1px 2px oklch(0 0 0 / 0.30), 0 6px 14px -3px oklch(0 0 0 / 0.40);
-    --v-shadow-high: 0 2px 4px oklch(0 0 0 / 0.30), 0 12px 24px -6px oklch(0 0 0 / 0.44), 0 32px 56px -20px oklch(0 0 0 / 0.56);
-  }
-}
-
-/* Explicit choice wins in both directions, and is scoped to the element
-   rather than the document -- the wall builder renders a light preview
-   inside a dark page and vice versa. */
+/* Light palette, scoped to an element rather than the document: the wall
+   builder renders a light preview inside the dark app, and the embed uses
+   the identical block inside its shadow root. */
 [data-theme="light"] {
-  --v-bg:            var(--v-paper);
-  --v-surface:       oklch(1 0 0);
-  --v-surface-sunk:  var(--v-ink-50);
-  --v-surface-hover: var(--v-ink-50);
-  --v-border:        oklch(0.892 0.005 82 / 0.9);
-  --v-border-strong: var(--v-ink-300);
-  --v-text:          var(--v-ink-950);
-  --v-text-muted:    var(--v-ink-600);
-  --v-text-subtle:   var(--v-ink-500);
-  --v-text-onaccent: oklch(0.99 0.005 60);
-  --v-accent-hover: color-mix(in oklab, var(--v-accent) 88%, black);
-  --v-accent-press: color-mix(in oklab, var(--v-accent) 76%, black);
-  --v-accent-soft:  color-mix(in oklab, var(--v-accent) 12%, var(--v-surface));
-  --v-accent-text:  color-mix(in oklab, var(--v-accent) 82%, var(--v-ink-950));
-  --v-shadow-low:
-    0 1px 1px oklch(0.24 0.012 65 / 0.04),
-    0 1px 2px oklch(0.24 0.012 65 / 0.06);
-  --v-shadow-mid:
-    0 1px 2px oklch(0.24 0.012 65 / 0.04),
-    0 6px 14px -3px oklch(0.24 0.012 65 / 0.08);
-  --v-shadow-high:
-    0 2px 4px oklch(0.24 0.012 65 / 0.04),
-    0 12px 24px -6px oklch(0.24 0.012 65 / 0.10),
-    0 32px 56px -20px oklch(0.24 0.012 65 / 0.14);
+  --v-bg:            #ffffff;
+  --v-surface:       #ffffff;
+  --v-surface-sunk:  var(--v-neutral-100);
+  --v-surface-hover: var(--v-neutral-100);
+  --v-border:        color-mix(in srgb, #292b31 14%, transparent);
+  --v-border-strong: var(--v-neutral-300);
+  --v-text:          #16171d;
+  --v-text-muted:    var(--v-neutral-700);
+  --v-text-subtle:   var(--v-neutral-600);
+  --v-text-onaccent: #ffffff;
+  --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, black);
+  --v-accent-press: color-mix(in oklab, var(--v-accent) 74%, black);
+  --v-accent-soft:  color-mix(in srgb, var(--v-accent) 12%, white);
+  --v-accent-line:  color-mix(in srgb, var(--v-accent) 34%, transparent);
+  --v-accent-text:  color-mix(in oklab, var(--v-accent) 78%, black);
+  --v-shadow-low:  0 1px 2px rgba(22, 24, 38, 0.07);
+  --v-shadow-mid:  0 1px 2px rgba(22, 24, 38, 0.05), 0 6px 16px -4px rgba(22, 24, 38, 0.12);
+  --v-shadow-high: 0 2px 4px rgba(22, 24, 38, 0.05), 0 16px 40px -12px rgba(22, 24, 38, 0.22);
 }
 
 [data-theme="dark"] {
-  --v-bg:            oklch(0.164 0.010 68);
-  --v-surface:       oklch(0.208 0.011 68);
-  --v-surface-sunk:  oklch(0.144 0.010 68);
-  --v-surface-hover: oklch(0.248 0.012 68);
-  --v-border:        oklch(0.318 0.011 68 / 0.9);
-  --v-border-strong: oklch(0.418 0.010 68);
-  --v-text:          oklch(0.968 0.005 88);
-  --v-text-muted:    oklch(0.742 0.008 74);
-  --v-text-subtle:   oklch(0.622 0.008 70);
-  --v-accent:        oklch(0.672 0.142 40);
-  --v-accent-hover:  color-mix(in oklab, var(--v-accent) 88%, white);
-  --v-accent-press:  color-mix(in oklab, var(--v-accent) 76%, white);
-  --v-accent-soft:   color-mix(in oklab, var(--v-accent) 16%, var(--v-surface));
-  --v-accent-text:   color-mix(in oklab, var(--v-accent) 78%, oklch(0.98 0 0));
-  --v-text-onaccent: oklch(0.16 0.012 60);
-  --v-shadow-low:  0 1px 2px oklch(0 0 0 / 0.34);
-  --v-shadow-mid:  0 1px 2px oklch(0 0 0 / 0.30), 0 6px 14px -3px oklch(0 0 0 / 0.40);
-  --v-shadow-high: 0 2px 4px oklch(0 0 0 / 0.30), 0 12px 24px -6px oklch(0 0 0 / 0.44), 0 32px 56px -20px oklch(0 0 0 / 0.56);
+  --v-bg:            #161826;
+  --v-surface:       #232532;
+  --v-surface-sunk:  #12141d;
+  --v-surface-hover: #2b2e3d;
+  --v-border:        color-mix(in srgb, #e9e9ed 16%, transparent);
+  --v-border-strong: var(--v-neutral-700);
+  --v-text:          #e9e9ed;
+  --v-text-muted:    color-mix(in srgb, #e9e9ed 70%, transparent);
+  --v-text-subtle:   color-mix(in srgb, #e9e9ed 52%, transparent);
+  --v-text-onaccent: #14121f;
+  --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, white);
+  --v-accent-press: color-mix(in oklab, var(--v-accent) 74%, black);
+  --v-accent-soft:  color-mix(in srgb, var(--v-accent) 14%, transparent);
+  --v-accent-line:  color-mix(in srgb, var(--v-accent) 42%, transparent);
+  --v-accent-text:  color-mix(in oklab, var(--v-accent) 82%, white);
+  --v-shadow-low:  0 0 0 1px var(--v-neutral-800);
+  --v-shadow-mid:  0 0 0 1px var(--v-neutral-700), 0 6px 18px rgba(0, 0, 0, 0.55);
+  --v-shadow-high: 0 0 0 1px var(--v-neutral-500), 0 16px 40px rgba(0, 0, 0, 0.65);
 }
 
 /* ============================================================
@@ -184,6 +163,16 @@
   --color-accent-text: var(--v-accent-text);
   --color-onaccent: var(--v-text-onaccent);
 
+  --color-n100: var(--v-neutral-100);
+  --color-n200: var(--v-neutral-200);
+  --color-n300: var(--v-neutral-300);
+  --color-n400: var(--v-neutral-400);
+  --color-n500: var(--v-neutral-500);
+  --color-n600: var(--v-neutral-600);
+  --color-n700: var(--v-neutral-700);
+  --color-n800: var(--v-neutral-800);
+  --color-n900: var(--v-neutral-900);
+
   --color-success: var(--v-success);
   --color-warning: var(--v-warning);
   --color-danger: var(--v-danger);
@@ -199,8 +188,8 @@
   --shadow-mid: var(--v-shadow-mid);
   --shadow-high: var(--v-shadow-high);
 
-  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
-  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 
   --ease-out-quint: var(--v-ease-out);
@@ -224,14 +213,16 @@
     background-color: var(--v-bg);
     color: var(--v-text);
     font-family: var(--font-sans);
-    font-feature-settings: "cv05" 1, "ss01" 1;
+    font-feature-settings: "cv05" 1, "ss01" 1, "cv11" 1;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Display face: optical size + slight wonk is the whole point of Fraunces */
+  /* Nocturne headings: Inter at 500, tight tracking, tight leading. The
+     weight is what separates a heading from body -- not a second typeface. */
   .font-display {
-    font-variation-settings: "SOFT" 0, "WONK" 1, "opsz" 40;
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
   }
 
   /* Visible focus everywhere. Never remove, only restyle. */
@@ -257,6 +248,21 @@
 }
 
 @layer utilities {
+  /* A Nocturne signature: freestanding rules fade to transparent at both
+     ends rather than stopping cleanly. Box outlines and in-control
+     separators stay solid. */
+  .rule-fade {
+    height: 1px;
+    border: 0;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--v-border) 48px,
+      var(--v-border) calc(100% - 48px),
+      transparent
+    );
+  }
+
   /* The one motion moment: cards settling into the wall. */
   @keyframes v-settle {
     from {

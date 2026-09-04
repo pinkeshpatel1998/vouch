@@ -14,12 +14,12 @@ import { fileToScaledDataUrl } from "@/lib/image";
 import type { Space } from "@/lib/database.types";
 
 const ACCENTS = [
-  "oklch(0.582 0.148 38)",
-  "oklch(0.520 0.108 165)",
-  "oklch(0.430 0.118 268)",
-  "oklch(0.508 0.148 336)",
-  "oklch(0.652 0.128 78)",
-  "oklch(0.400 0.020 260)",
+  "#9184d9", // blurple — the system default
+  "#7fb2a6", // sage
+  "#c98f6a", // clay
+  "#6f8fd0", // steel
+  "#d98fa8", // rose
+  "#ded8cf", // bone
 ];
 
 function Section({
@@ -69,7 +69,7 @@ export default function SettingsPage({ params }: { params: Promise<{ space: stri
     QRCode.toDataURL(link, {
       width: 320,
       margin: 1,
-      color: { dark: "#1a1614", light: "#ffffff" },
+      color: { dark: "#12141d", light: "#e9e9ed" },
     })
       .then(setQr)
       .catch(() => setQr(null));
@@ -294,7 +294,7 @@ export default function SettingsPage({ params }: { params: Promise<{ space: stri
                 {copied ? "Copied" : "Copy"}
               </Button>
             </div>
-            <Button variant="soft" size="sm" onClick={() => window.open(`/c/${draft.slug}`, "_blank")}>
+            <Button variant="secondary" size="sm" onClick={() => window.open(`/c/${draft.slug}`, "_blank")}>
               Open collection page
               <svg viewBox="0 0 16 16" className="size-3.5" fill="currentColor" aria-hidden>
                 <path d="M6 3.5a.75.75 0 0 0 0 1.5h2.44L4.22 9.22a.75.75 0 1 0 1.06 1.06L9.5 6.06V8.5a.75.75 0 0 0 1.5 0v-4a.75.75 0 0 0-.75-.75H6Z" />
@@ -308,7 +308,7 @@ export default function SettingsPage({ params }: { params: Promise<{ space: stri
               <img
                 src={qr}
                 alt={`QR code linking to ${link}`}
-                className="size-32 rounded-md border border-line bg-white p-1.5"
+                className="size-32 rounded-md border border-line bg-[#e9e9ed] p-1.5"
               />
             ) : (
               <Skeleton className="size-32 rounded-md" />

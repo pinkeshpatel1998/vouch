@@ -121,7 +121,7 @@ export async function createSpace(input: {
     slug,
     name: input.name.trim(),
     logo_url: null,
-    accent_color: input.accent_color ?? "oklch(0.582 0.148 38)",
+    accent_color: input.accent_color ?? "#9184d9",
     prompt_question: "What did we help you achieve?",
     thankyou_message: "Thank you — that genuinely helps.",
     allow_text: true,
@@ -193,6 +193,12 @@ export async function setTestimonialStatus(
   status: TestimonialStatus,
 ): Promise<Testimonial> {
   const snap = read();
+  // Mirrors the guard_incomplete_video trigger: an unfinished upload must
+  // never reach a wall, whatever the caller asks for.
+  const row = snap.testimonials.find((t) => t.id === id);
+  if (row && status === "approved" && row.type === "video" && !row.video_url) {
+    throw new Error("A video testimonial cannot be approved before its upload completes");
+  }
   const next = snap.testimonials.map((t) =>
     t.id === id
       ? {
@@ -380,5 +386,56 @@ export async function listSpacesOverview(): Promise<SpaceOverview[]> {
         rejected: mine.filter((t) => t.status === "rejected").length,
       };
     });
+  return tick(rows);
+}
+
+/* ---------------- cross-space activity ---------------- */
+
+export type ActivityRow = Testimonial & { space_name: string; space_slug: string };
+
+/**
+ * Recent submissions across every space. Backs the dashboard's activity table
+ * and the all-submissions view. In Supabase this is one join, filtered by RLS
+ * to the owner's own spaces.
+ */
+export async function listActivity(opts?: {
+  limit?: number;
+  status?: TestimonialStatus;
+  spaceId?: string;
+}): Promise<ActivityRow[]> {
+  const { spaces, testimonials } = read();
+  const byId = new Map(spaces.map((s) => [s.id, s]));
+
+  const rows = testimonials
+    .filter((t) => (!opts?.status || t.status === opts.status))
+    .filter((t) => (!opts?.spaceId || t.space_id === opts.spaceId))
+    .filter((t) => byId.has(t.space_id))
+    .sort((a, b) => b.submitted_at.localeCompare(a.submitted_at))
+    .map((t) => ({
+      ...t,
+      space_name: byId.get(t.space_id)!.name,
+      space_slug: byId.get(t.space_id)!.slug,
+    }));
+
+  return tick(opts?.limit ? rows.slice(0, opts.limit) : rows);
+}
+
+export async function totals(): Promise<{ spaces: number; collected: number; pending: number }> {
+  const { spaces, testimonials } = read();
+  return tick({
+    spaces: spaces.length,
+    collected: testimonials.length,
+    pending: testimonials.filter((t) => t.status === "pending").length,
+  });
+}
+
+
+/** Video rows whose upload never landed. Surfaced as an inbox alert. */
+export async function listIncompleteUploads(spaceId: string): Promise<Testimonial[]> {
+  const rows = read()
+    .testimonials.filter(
+      (t) => t.space_id === spaceId && t.type === "video" && !t.video_url,
+    )
+    .sort((a, b) => b.submitted_at.localeCompare(a.submitted_at));
   return tick(rows);
 }

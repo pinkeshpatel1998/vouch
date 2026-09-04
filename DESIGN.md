@@ -1,19 +1,24 @@
 # Vouch — design system decisions
 
+> **Re-skinned to Nocturne.** The original warm-paper / Fraunces / clay system
+> is preserved at `docs/design-import/globals.warm.css.bak` and in git history.
+> The current system is dark indigo with a blurple accent, ported from the
+> Claude Design spec in `docs/design-import/`.
+
 Written day 3. The point of this file is that weeks 3 and 4 do not re-litigate
 week 1. If a decision below feels wrong later, change it here first, then in code.
 
 ## Typefaces
 
-| Role | Face | Why |
-|---|---|---|
-| Display | **Fraunces** | Variable, with the `WONK` and `SOFT` axes exposed. The wonky leg is what stops it reading as a stock serif, and a serif is the right register for a product whose entire content is quotations. |
-| UI | **Instrument Sans** | Neutral, slightly narrow, good at 13px. Explicitly not Inter, per the brief. |
-| Mono | **JetBrains Mono** | Embed snippets only. Never used for UI copy. |
+**Inter, and only Inter.** Headings run at weight 500 with `-0.015em` tracking
+and 1.12 leading; body at 400. Weight and tracking do the work a second family
+used to do. JetBrains Mono appears only inside embed snippets.
 
-Fraunces is set with `font-variation-settings: "SOFT" 0, "WONK" 1, "opsz" 40` via
-the `.font-display` class. Use it for page titles, the single-quote layout, and
-empty-state headings. Do **not** use it for body copy or anything under ~18px.
+This deliberately overrides PRD §9 ("avoid Inter as the display face"). The
+brief wanted a display face with personality; Nocturne's answer is that on a
+dark ground, a high-contrast serif fights the low-contrast surfaces, and the
+personality comes from the ground and the accent instead. If the wall ever
+starts looking generic, this is the first decision to revisit.
 
 ## Token architecture
 
@@ -30,6 +35,15 @@ Two layers, both in `app/globals.css`:
 Never write a raw colour in a component. If you need one, it is missing from the
 semantic layer — add it there.
 
+## Dark app, themeable wall
+
+The app is dark, full stop -- there is no theme toggle in the chrome any more.
+The **wall** is a different matter: a widget has to render on whatever site it
+lands on, so `[data-theme="light"]` still defines a complete light palette and
+is scoped to an element rather than the document. The builder previews light
+inside the dark app, and the embed uses the identical block inside its shadow
+root.
+
 ## The accent is one variable
 
 `--v-accent` is the only brand colour. Five tints derive from it with
@@ -41,22 +55,24 @@ embedded wall without any other change, and cannot produce an unreadable pairing
 The same mechanism is what the widget will use inside its shadow root.
 
 Avatar initial tints use relative colour syntax
-(`oklch(from var(--v-accent) …)`) with a deterministic hue spread of ±44°, so a
-wall of avatars stays harmonious with whatever accent is set.
+(`oklch(from var(--v-accent) …)`) with a deterministic hue spread of ±44°, then
+**mix against `--v-surface` and `--v-text`** rather than pinning fixed
+lightnesses. That is what lets one rule work on the dark app and on a light wall
+embedded in someone else's site. Pinned lightnesses produced bright pastel
+discs that shouted on a dark card.
 
 ## Scales
 
 - **Spacing** — Tailwind's 4px base. No custom scale.
-- **Radius** — xs 4 / sm 6 / md 10 / lg 14 / xl 20 / 2xl 28. Controls use sm–md,
-  cards lg, the quote card and modals xl.
-- **Shadow** — exactly three: `low`, `mid`, `high`. Anything that wants a fourth
-  gets a border instead.
-
-## Theme
-
-Three states, matching how the embed will behave: explicit `light`, explicit
-`dark`, and system default (no `data-theme` attribute). A blocking inline script
-in `app/layout.tsx` sets the attribute before first paint so there is no flash.
+- **Radius** — xs 4 / sm 6 / md 8 / lg 14 / xl 18 / 2xl 24. Controls and cards
+  sit at md; dialogs at lg.
+- **Elevation** — a hairline ring plus ambient darkness, not a soft drop shadow.
+  On a dark ground a blurred shadow reads as smudge, so `low` is a 1px ring,
+  `mid` and `high` add depth beneath it.
+- **Rules** — freestanding rules fade to transparent 48px from each end
+  (`.rule-fade`). Table row rules are painted as row-level background strips so
+  the fade spans the whole row instead of stopping at each cell edge. Box
+  outlines and in-control separators stay solid.
 
 ## Motion
 
@@ -67,6 +83,13 @@ on load (`.animate-settle`, staggered 55ms). Everything else is a 120–220ms
 colour or shadow transition. Resist adding a second.
 
 `prefers-reduced-motion` kills all of it globally.
+
+## Buttons are outlined
+
+Nocturne's primary button is an accent border and accent text on a transparent
+ground, with a 12% accent wash on hover -- not a filled block. On a dark ground
+a large filled rectangle reads as a slab. A `solid` variant exists for the rare
+case that has to shout; it is used nowhere by default.
 
 ## Accessibility rules that are not negotiable
 

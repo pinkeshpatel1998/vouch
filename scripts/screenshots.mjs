@@ -47,7 +47,7 @@ await page.goto(BASE + "/app", { waitUntil: "networkidle2" });
 await wait(800);
 await page.evaluate(() => {
   const b = [...document.querySelectorAll("button")].find((x) =>
-    x.textContent.includes("Load a demo space"),
+    x.textContent.includes("Load demo space"),
   );
   if (b) b.click();
 });

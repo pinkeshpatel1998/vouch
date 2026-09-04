@@ -26,7 +26,7 @@ export const demoWallPayload: WallPayload = {
     layout: "masonry",
     carousel_style: "rail",
     theme: "auto",
-    accent_color: "oklch(0.582 0.148 38)",
+    accent_color: "#9184d9",
     show_ratings: true,
     include_video: true,
   },

@@ -145,26 +145,27 @@ export default function CollectPage({ params }: { params: Promise<{ slug: string
         {/* ---------- choose ---------- */}
         {step === "choose" && (
           <div className="space-y-3">
-            {space.allow_text && (
-              <PathButton
-                title="Write a testimonial"
-                note="Two or three sentences. About a minute."
-                onClick={() => setStep("text")}
-                icon={
-                  <svg viewBox="0 0 20 20" className="size-5" fill="currentColor" aria-hidden>
-                    <path d="M13.6 2.4a2 2 0 0 1 2.83 2.83l-8.2 8.2-3.5.67.67-3.5 8.2-8.2ZM3 16.5h14a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1 0-1.5Z" />
-                  </svg>
-                }
-              />
-            )}
             {space.allow_video && (
               <PathButton
                 title="Record a video"
                 note="Up to 90 seconds, straight from this page."
                 onClick={() => setStep("record")}
+                primary
                 icon={
                   <svg viewBox="0 0 20 20" className="size-5" fill="currentColor" aria-hidden>
                     <path d="M2.5 5.5A2 2 0 0 1 4.5 3.5h7a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7a2 2 0 0 1-2-2v-9ZM15 7.7l2.6-1.75a.5.5 0 0 1 .78.42v7.26a.5.5 0 0 1-.78.42L15 12.3V7.7Z" />
+                  </svg>
+                }
+              />
+            )}
+            {space.allow_text && (
+              <PathButton
+                title="Write instead"
+                note="Two or three sentences. About a minute."
+                onClick={() => setStep("text")}
+                icon={
+                  <svg viewBox="0 0 20 20" className="size-5" fill="currentColor" aria-hidden>
+                    <path d="M13.6 2.4a2 2 0 0 1 2.83 2.83l-8.2 8.2-3.5.67.67-3.5 8.2-8.2ZM3 16.5h14a.75.75 0 0 1 0 1.5H3a.75.75 0 0 1 0-1.5Z" />
                   </svg>
                 }
               />
@@ -179,6 +180,7 @@ export default function CollectPage({ params }: { params: Promise<{ slug: string
         {/* ---------- record ---------- */}
         {step === "record" && (
           <VideoRecorder
+            prompt={space.prompt_question}
             onDone={(r) => {
               setRecorded(r);
               setStep("details");
@@ -330,24 +332,31 @@ function PathButton({
   note,
   icon,
   onClick,
+  primary,
 }: {
   title: string;
   note: string;
   icon: React.ReactNode;
   onClick: () => void;
+  primary?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="group flex w-full items-center gap-4 rounded-lg border border-line bg-surface p-4 text-left shadow-low transition-[border-color,box-shadow,transform] duration-[220ms] ease-[var(--v-ease-out)] hover:-translate-y-0.5 hover:border-accent hover:shadow-mid"
+      className={cn(
+        "group flex w-full items-center gap-3.5 rounded-md border p-3.5 text-left transition-colors duration-[220ms] ease-[var(--v-ease-out)]",
+        primary
+          ? "border-accent text-accent hover:bg-[color-mix(in_srgb,var(--v-accent)_12%,transparent)]"
+          : "border-line bg-surface text-ink hover:bg-hover",
+      )}
     >
-      <span className="grid size-11 shrink-0 place-items-center rounded-lg bg-accent-soft text-accent-text transition-colors group-hover:bg-accent group-hover:text-onaccent">
+      <span className="grid size-9 shrink-0 place-items-center rounded-md bg-accent-soft text-accent">
         {icon}
       </span>
       <span className="min-w-0">
-        <span className="block text-[15px] font-medium text-ink">{title}</span>
-        <span className="block text-[13px] text-muted">{note}</span>
+        <span className="block text-[14.5px] font-medium">{title}</span>
+        <span className="block text-[12.5px] text-muted">{note}</span>
       </span>
       <svg viewBox="0 0 16 16" className="ml-auto size-4 shrink-0 text-subtle" fill="currentColor" aria-hidden>
         <path d="M5.72 3.22a.75.75 0 0 0 0 1.06L9.44 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06L6.78 3.22a.75.75 0 0 0-1.06 0Z" />

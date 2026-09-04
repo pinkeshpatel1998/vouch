@@ -30,10 +30,10 @@ export function staticHtmlExport(payload: WallPayload): string {
   const { wall, testimonials } = payload;
   const dark = wall.theme === "dark";
 
-  const bg = dark ? "#221f1d" : "#ffffff";
-  const line = dark ? "#3a3532" : "#e4e0db";
-  const ink = dark ? "#f6f3f0" : "#1a1614";
-  const muted = dark ? "#a8a09a" : "#6b625c";
+  const bg = dark ? "#232532" : "#ffffff";
+  const line = dark ? "rgba(233,233,237,.16)" : "rgba(41,43,49,.14)";
+  const ink = dark ? "#e9e9ed" : "#16171d";
+  const muted = dark ? "rgba(233,233,237,.7)" : "#595d6c";
   const accent = wall.accent_color;
 
   // Carousel needs JS to be worth anything, so a static export renders it as a
@@ -76,7 +76,7 @@ ${video ? `        ${video}\n` : ""}${
     .vouch-grid{column-count:${columns};column-gap:16px;}
     @media (max-width:900px){.vouch-grid{column-count:${Math.min(2, columns)};}}
     @media (max-width:600px){.vouch-grid{column-count:1;}}
-    .vouch-card{break-inside:avoid;margin:0 0 16px;padding:20px;background:${bg};border:1px solid ${line};border-radius:14px;box-shadow:0 1px 2px rgba(26,22,20,.06);}
+    .vouch-card{break-inside:avoid;margin:0 0 16px;padding:20px;background:${bg};border:1px solid ${line};border-radius:8px;}
     .vouch-video{width:100%;border-radius:10px;margin-bottom:14px;background:#000;display:block;}
     .vouch-stars{color:var(--vouch-accent);letter-spacing:2px;font-size:14px;margin-bottom:10px;}
     .vouch-star-off{opacity:.28;}
