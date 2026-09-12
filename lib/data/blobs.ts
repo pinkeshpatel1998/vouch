@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import { createClient } from "@/lib/supabase/client";
+import { supabaseConfigured } from "@/lib/supabase/env";
 
 /**
  * Recorded video, kept in IndexedDB.
@@ -27,7 +29,37 @@ function open(): Promise<IDBDatabase> {
 
 export const BLOB_PREFIX = "blob-store:";
 
-export async function putBlob(blob: Blob): Promise<string> {
+/** webm on Chrome and Firefox, mp4 on Safari -- keep whatever we were handed. */
+function extensionFor(type: string) {
+  if (type.includes("mp4")) return "mp4";
+  if (type.includes("quicktime")) return "mov";
+  if (type.startsWith("image/")) return type.includes("png") ? "png" : "jpg";
+  return "webm";
+}
+
+/**
+ * Stores a recording and returns whatever belongs in `video_url`.
+ *
+ * With Supabase configured this uploads to the `testimonial-videos` bucket
+ * under `{space_id}/…`, which is the path shape the storage policies check,
+ * and returns a real public URL. Without it, the bytes go to IndexedDB and the
+ * row carries a `blob-store:` sentinel that `useBlobUrl` resolves. Callers pass
+ * the same arguments either way.
+ */
+export async function putBlob(blob: Blob, spaceId: string): Promise<string> {
+  if (supabaseConfigured()) {
+    const supabase = createClient();
+    const path = `${spaceId}/${crypto.randomUUID()}.${extensionFor(blob.type)}`;
+    const bucket = blob.type.startsWith("image/") ? "testimonial-images" : "testimonial-videos";
+
+    const { error } = await supabase.storage
+      .from(bucket)
+      .upload(path, blob, { contentType: blob.type || undefined, upsert: false });
+    if (error) throw new Error(error.message);
+
+    return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
+  }
+
   const id = crypto.randomUUID();
   const db = await open();
   await new Promise<void>((resolve, reject) => {

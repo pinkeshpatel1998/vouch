@@ -7,7 +7,7 @@ import { Card, Skeleton } from "@/components/ui/primitives";
 import { Switch } from "@/components/ui/switch";
 import { WallRender } from "@/components/wall/wall-render";
 import { useQuery } from "@/lib/data/use-store";
-import { getSpace, getWallForSpace, updateWall, wallPayload } from "@/lib/data/store";
+import { getSpace, getWallForSpace, updateWall, wallPayload } from "@/lib/data";
 import { staticHtmlExport, scriptEmbed, iframeEmbed } from "@/lib/export-html";
 import type { CarouselStyle, Layout, Theme, Wall } from "@/lib/database.types";
 

@@ -1,5 +1,6 @@
 import type { Testimonial } from "@/lib/database.types";
-import { createSpace, uid } from "./store";
+import { uid } from "./store";
+import { backend, createSpace, submitTestimonial, setTestimonialStatus } from "./index";
 
 /**
  * One-click demo space. Section 5.2 asks for an empty state that produces
@@ -35,8 +36,29 @@ const STORE_KEY = "vouch-store-v1";
 export async function seedDemoSpace() {
   const space = await createSpace({ name: "Lantern Studio", slug: "lantern-studio" });
 
-  // Written straight in rather than through submitTestimonial(), which would
-  // force every row to 'pending' -- correct for real submissions, useless here.
+  if (backend === "supabase") {
+    // There is deliberately no INSERT policy on testimonials, so even the owner
+    // cannot write one directly -- the seed goes in through the same public RPC
+    // a real submitter uses, then gets moved out of pending afterwards.
+    for (const q of QUOTES) {
+      const id = await submitTestimonial({
+        p_slug: space.slug,
+        p_type: "text",
+        p_author_name: q.author_name,
+        p_consent: true,
+        p_body: q.body,
+        p_rating: q.rating,
+        p_author_role: q.author_role,
+        p_author_company: q.author_company,
+      });
+      if (q.status !== "pending") await setTestimonialStatus(id, q.status);
+    }
+    return space;
+  }
+
+  // Local mode writes straight to the snapshot: going through the RPC would
+  // force every row to 'pending', which is correct for a real submission and
+  // useless for a demo that needs an already-populated wall.
   const now = Date.now();
   const rows: Testimonial[] = QUOTES.map((q, i) => ({
     id: uid(),
@@ -55,7 +77,8 @@ export async function seedDemoSpace() {
     consent_given: true,
     // Spread over the past fortnight so ordering is meaningful.
     submitted_at: new Date(now - i * 26 * 3600 * 1000).toISOString(),
-    approved_at: q.status === "approved" ? new Date(now - i * 25 * 3600 * 1000).toISOString() : null,
+    approved_at:
+      q.status === "approved" ? new Date(now - i * 25 * 3600 * 1000).toISOString() : null,
   }));
 
   const raw = window.localStorage.getItem(STORE_KEY);

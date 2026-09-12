@@ -113,7 +113,7 @@ npm run dev
 
 That's enough to browse everything. With no Supabase environment variables set, the app runs in **local mode** against a localStorage-backed data layer, and `/app` opens without signing in. Recorded video goes to IndexedDB.
 
-Every function in that layer has the exact name, arguments and return type of the Supabase RPC it stands in for, so wiring the real backend is an adapter swap rather than a rewrite.
+Setting the two Supabase environment variables is the entire switch. `lib/data/index.ts` chooses between `store.ts` (localStorage) and `supabase.ts` (Postgres + RLS) at import time; both export identical signatures, `putBlob` starts uploading to Storage instead of IndexedDB, and `/app` starts requiring a Google sign-in. `npm run check:imports` fails the build if a screen reaches past the adapter into either implementation.
 
 For real auth and Postgres, follow **[SETUP.md](SETUP.md)** — the Supabase project, the Google OAuth client and the environment variables all need your own credentials.
 
@@ -121,13 +121,31 @@ For real auth and Postgres, follow **[SETUP.md](SETUP.md)** — the Supabase pro
 
 ## Status
 
-Day 3 of 28. Every screen in the spec is built and the loop works end to end.
+Day 11 of 28. Every screen is built, the loop works end to end, and the SQL is
+verified. Still running on the local data layer — Supabase is the next step.
 
-**Honest caveats**, because you'll find them anyway:
+**Verified, not assumed:**
 
-- The script-tag and iframe embeds currently resolve only against `/api/walls/demo`, which is server-served. A wall created in the builder needs Supabase before its snippet renders on someone else's site. The static HTML export has no such limit.
-- The migrations have not yet been run against a real Postgres.
-- Video capture is built — `MediaRecorder`, countdown, timer, 90s cap, re-record, poster frame — but has not been exercised on a physical iPhone. Safari hands back mp4 where Chrome and Firefox hand back webm; Vouch stores whatever the browser gives it and serves it back as-is, with no transcoding.
+- `npm run db:check` applies all five migrations to a real Postgres 18 (PGlite,
+  in-process, no Docker) and runs 26 checks across constraints, the four public
+  RPCs and RLS from both an owner's and an anonymous session.
+- `npm run perf:widget` loads the embed on a cold cache and times the first card
+  into the shadow root: **150 ms** against a production build, comfortably inside
+  §14's 400 ms budget.
+- `npm run check` runs typecheck, the data-layer import guard and the database
+  checks together.
+
+**Still open:**
+
+- Not deployed, so there is no public demo URL and no "try it" link yet.
+- The seeded demo space is text-only. Two video testimonials are a submission
+  requirement; seeding fake ones would mean a play button leading nowhere, so
+  they need recording through the real flow.
+- No 60-second demo recording.
+- Video capture — `MediaRecorder`, countdown, timer, 90s cap, re-record, poster
+  frame — has still never run on a physical iPhone. Safari hands back mp4 where
+  Chrome and Firefox hand back webm; Vouch stores whatever the browser gives it
+  and serves it back as-is, with no transcoding.
 
 ---
 

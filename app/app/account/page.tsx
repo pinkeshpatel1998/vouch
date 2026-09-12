@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, Avatar } from "@/components/ui/primitives";
 import { useQuery } from "@/lib/data/use-store";
-import { totals } from "@/lib/data/store";
+import { totals } from "@/lib/data";
 import { supabaseConfigured } from "@/lib/supabase/env";
 
 export default function AccountPage() {

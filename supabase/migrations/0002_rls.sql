@@ -273,6 +273,24 @@ revoke all on public.users, public.spaces, public.testimonials,
                 public.walls, public.wall_views
   from anon;
 
+-- Explicit privileges for signed-in owners.
+--
+-- A Supabase project's default privileges would usually cover this, which is
+-- why it is easy to miss: run these migrations anywhere else -- or after those
+-- defaults change -- and every owner query fails with "permission denied for
+-- table spaces". RLS is the row filter; these grants are the coarse gate in
+-- front of it, and both have to be present.
+grant usage on schema public to anon, authenticated;
+
+grant select, insert, update, delete on public.spaces to authenticated;
+grant select, insert, update, delete on public.walls  to authenticated;
+
+-- No INSERT: submissions arrive only through submit_testimonial().
+grant select, update, delete on public.testimonials to authenticated;
+
+grant select, update on public.users to authenticated;
+grant select on public.wall_views to authenticated;
+
 -- owns_space() is called from inside the policies above, and policy
 -- expressions are evaluated with the caller's privileges -- so
 -- authenticated must keep EXECUTE or every owner query fails.

@@ -20,7 +20,7 @@ import {
   setTestimonialStatus,
   updateTestimonial,
   deleteTestimonial,
-} from "@/lib/data/store";
+} from "@/lib/data";
 import type { Testimonial, TestimonialStatus } from "@/lib/database.types";
 
 const TABS: Array<{ key: TestimonialStatus; label: string }> = [

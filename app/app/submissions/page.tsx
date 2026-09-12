@@ -7,7 +7,7 @@ import { Avatar, Skeleton, EmptyState } from "@/components/ui/primitives";
 import { Table, Thead, Th, Tr, Td } from "@/components/ui/table";
 import { QuoteGlyph } from "@/components/ui/icons";
 import { useQuery } from "@/lib/data/use-store";
-import { listActivity, listSpacesOverview } from "@/lib/data/store";
+import { listActivity, listSpacesOverview } from "@/lib/data";
 import { when, StatusTag, TypeTag } from "@/components/activity-bits";
 import type { TestimonialStatus } from "@/lib/database.types";
 

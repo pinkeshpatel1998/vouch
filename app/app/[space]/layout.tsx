@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/cn";
 import { Avatar, Skeleton } from "@/components/ui/primitives";
 import { useQuery } from "@/lib/data/use-store";
-import { getSpace } from "@/lib/data/store";
+import { getSpace } from "@/lib/data";
 
 const TABS = [
   { slug: "inbox", label: "Inbox" },

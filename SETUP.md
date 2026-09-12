@@ -17,9 +17,12 @@ If `0003` is rejected when creating policies on `storage.objects`, run that file
 from the dashboard SQL editor rather than the CLI — the editor runs as a role
 that owns the storage schema.
 
-> These migrations have not yet been executed against a real Postgres. Docker is
-> not installed on this machine, so `supabase start` could not verify them. Run
-> them early; a syntax error found on day 3 is free and one found on day 20 is not.
+> Before you paste anything, run `npm run db:check`. It applies all five
+> migrations to a real Postgres 18 (PGlite, in-process — no Docker), stubs the
+> `auth` and `storage` schemas Supabase provides, and then exercises the
+> constraints, the four public RPCs and the RLS policies from both an owner's
+> and an anonymous session. 26 checks, about two seconds. If that is green the
+> SQL editor will be too.
 
 ## 2. Google OAuth
 
@@ -36,6 +39,11 @@ that owns the storage schema.
 ```bash
 cp .env.example .env.local
 ```
+
+Setting these two variables is the entire switch. `lib/data/index.ts` picks the
+Supabase implementation over the local one at import time, `putBlob` starts
+uploading to Storage instead of IndexedDB, and `/app` starts requiring a
+Google sign-in. No code changes.
 
 Fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from
 **Project Settings → Data API**, then restart the dev server.

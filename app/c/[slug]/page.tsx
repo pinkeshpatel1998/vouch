@@ -9,7 +9,7 @@ import { StarInput } from "@/components/ui/stars";
 import { QuoteGlyph } from "@/components/ui/icons";
 import { VideoRecorder } from "@/components/collect/video-recorder";
 import { useQuery } from "@/lib/data/use-store";
-import { collectionSpace, submitTestimonial } from "@/lib/data/store";
+import { collectionSpace, submitTestimonial, backend } from "@/lib/data";
 import { putBlob } from "@/lib/data/blobs";
 import { fileToScaledDataUrl } from "@/lib/image";
 
@@ -91,8 +91,20 @@ export default function CollectPage({ params }: { params: Promise<{ slug: string
     setBusy(true);
     setError(null);
     try {
+      // Uploading before the row exists is deliberate: the storage policies
+      // only check that the folder is a real space, so the file can land first
+      // and a dropped connection leaves an orphan file rather than a row that
+      // points at nothing.
       let videoUrl: string | null = null;
-      if (recorded) videoUrl = await putBlob(recorded.blob);
+      let posterUrl: string | null = recorded?.posterDataUrl ?? null;
+
+      if (recorded) {
+        videoUrl = await putBlob(recorded.blob, space.id);
+        if (recorded.posterDataUrl && backend === "supabase") {
+          const poster = await (await fetch(recorded.posterDataUrl)).blob();
+          posterUrl = await putBlob(poster, space.id);
+        }
+      }
 
       await submitTestimonial({
         p_slug: space.slug,
@@ -103,7 +115,7 @@ export default function CollectPage({ params }: { params: Promise<{ slug: string
         p_rating: space.show_ratings && rating ? rating : null,
         p_video_url: videoUrl,
         p_video_duration: recorded?.durationSeconds ?? null,
-        p_poster_url: recorded?.posterDataUrl ?? null,
+        p_poster_url: posterUrl,
         p_author_role: role || null,
         p_author_company: company || null,
         p_author_avatar_url: photo,

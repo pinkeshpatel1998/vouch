@@ -2,7 +2,7 @@
 -- Vouch 0001: schema
 -- ============================================================
 
-create extension if not exists "pgcrypto";
+-- No extensions required: gen_random_uuid() is core from Postgres 13 onward.
 
 -- ---------- users ----------
 -- Mirrors auth.users so spaces can carry a real foreign key and the

@@ -9,7 +9,7 @@ import { Input, Textarea, Field } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import { Dialog } from "@/components/ui/dialog";
 import { useQuery } from "@/lib/data/use-store";
-import { getSpace, updateSpace, deleteSpace } from "@/lib/data/store";
+import { getSpace, updateSpace, deleteSpace } from "@/lib/data";
 import { fileToScaledDataUrl } from "@/lib/image";
 import type { Space } from "@/lib/database.types";
 

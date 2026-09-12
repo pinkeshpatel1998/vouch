@@ -11,7 +11,7 @@ import { Input, Field } from "@/components/ui/field";
 import { Table, Thead, Th, Tr, Td } from "@/components/ui/table";
 import { QuoteGlyph } from "@/components/ui/icons";
 import { useQuery } from "@/lib/data/use-store";
-import { listSpacesOverview, listActivity, totals, createSpace, slugify } from "@/lib/data/store";
+import { listSpacesOverview, listActivity, totals, createSpace, slugify } from "@/lib/data";
 import { seedDemoSpace } from "@/lib/data/seed";
 import { when, StatusTag, TypeTag } from "@/components/activity-bits";
 
