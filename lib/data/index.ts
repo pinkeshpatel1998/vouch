@@ -15,6 +15,7 @@
 import { supabaseConfigured } from "@/lib/supabase/env";
 import * as local from "./store";
 import * as remote from "./supabase";
+import { invalidateData, subscribeData } from "./events";
 
 export type { ActivityRow, SpaceOverview } from "./store";
 
@@ -27,21 +28,32 @@ export const backend: "supabase" | "local" = supabaseConfigured() ? "supabase" :
 export const listSpaces = impl.listSpaces;
 export const listSpacesOverview = impl.listSpacesOverview;
 export const getSpace = impl.getSpace;
-export const createSpace = impl.createSpace;
-export const updateSpace = impl.updateSpace;
-export const deleteSpace = impl.deleteSpace;
+function mutation<Args extends unknown[], Result>(
+  fn: (...args: Args) => Promise<Result>,
+) {
+  if (backend === "local") return fn;
+  return async (...args: Args) => {
+    const result = await fn(...args);
+    invalidateData();
+    return result;
+  };
+}
+
+export const createSpace = mutation(impl.createSpace);
+export const updateSpace = mutation(impl.updateSpace);
+export const deleteSpace = mutation(impl.deleteSpace);
 
 /* Testimonials */
 export const listTestimonials = impl.listTestimonials;
 export const countsByStatus = impl.countsByStatus;
 export const listIncompleteUploads = impl.listIncompleteUploads;
-export const setTestimonialStatus = impl.setTestimonialStatus;
-export const updateTestimonial = impl.updateTestimonial;
-export const deleteTestimonial = impl.deleteTestimonial;
+export const setTestimonialStatus = mutation(impl.setTestimonialStatus);
+export const updateTestimonial = mutation(impl.updateTestimonial);
+export const deleteTestimonial = mutation(impl.deleteTestimonial);
 
 /* Walls */
 export const getWallForSpace = impl.getWallForSpace;
-export const updateWall = impl.updateWall;
+export const updateWall = mutation(impl.updateWall);
 
 /* Cross-space */
 export const listActivity = impl.listActivity;
@@ -49,11 +61,11 @@ export const totals = impl.totals;
 
 /* Public surface */
 export const collectionSpace = impl.collectionSpace;
-export const submitTestimonial = impl.submitTestimonial;
+export const submitTestimonial = mutation(impl.submitTestimonial);
 export const wallPayload = impl.wallPayload;
 export const recordWallView = impl.recordWallView;
 
 /* Pure helpers — same in both worlds */
 export const slugify = local.slugify;
 export const uid = local.uid;
-export const subscribe = local.subscribe;
+export const subscribe = subscribeData;

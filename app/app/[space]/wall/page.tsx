@@ -101,18 +101,25 @@ export default function WallPage({
     () => getWallForSpace(spaceId),
     [spaceId],
   );
+  const [draftWall, setDraftWall] = React.useState<Wall | null>(null);
+
+  React.useEffect(() => {
+    if (wall) setDraftWall(wall);
+  }, [wall]);
+
+  const currentWall = draftWall ?? wall;
   const { data: payload } = useQuery(
-    () => (wall ? wallPayload(wall.id) : Promise.resolve(null)),
+    () => (currentWall ? wallPayload(currentWall.id) : Promise.resolve(null)),
     [
-      wall?.id,
-      wall?.layout,
-      wall?.carousel_style,
-      wall?.card_style,
-      wall?.theme,
-      wall?.accent_color,
-      wall?.max_items,
-      wall?.show_ratings,
-      wall?.include_video,
+      currentWall?.id,
+      currentWall?.layout,
+      currentWall?.carousel_style,
+      currentWall?.card_style,
+      currentWall?.theme,
+      currentWall?.accent_color,
+      currentWall?.max_items,
+      currentWall?.show_ratings,
+      currentWall?.include_video,
     ],
   );
 
@@ -126,12 +133,16 @@ export default function WallPage({
   React.useEffect(() => setOrigin(window.location.origin), []);
 
   async function patch(next: Partial<Wall>) {
-    if (!wall) return;
+    if (!currentWall) return;
+    const previous = currentWall;
+    setDraftWall({ ...currentWall, ...next });
     setSaving(true);
     setSaveError(null);
     try {
-      await updateWall(wall.id, next);
+      const saved = await updateWall(currentWall.id, next);
+      setDraftWall(saved);
     } catch (error) {
+      setDraftWall(previous);
       setSaveError(
         error instanceof Error
           ? error.message
@@ -142,14 +153,35 @@ export default function WallPage({
     }
   }
 
-  const snippet = !wall
+  const previewPayload =
+    payload && currentWall
+      ? {
+          ...payload,
+          wall: {
+            ...payload.wall,
+            layout: currentWall.layout,
+            carousel_style: currentWall.carousel_style,
+            card_style: currentWall.card_style,
+            theme: currentWall.theme,
+            accent_color:
+              currentWall.accent_color ??
+              space?.accent_color ??
+              payload.wall.accent_color,
+            show_ratings:
+              currentWall.show_ratings && (space?.show_ratings ?? true),
+            include_video: currentWall.include_video,
+          },
+        }
+      : payload;
+
+  const snippet = !currentWall
     ? ""
     : tab === "script"
-      ? scriptEmbed(origin, wall.id)
+      ? scriptEmbed(origin, currentWall.id)
       : tab === "iframe"
-        ? iframeEmbed(origin, wall.id)
+        ? iframeEmbed(origin, currentWall.id)
         : payload
-          ? staticHtmlExport(payload)
+          ? staticHtmlExport(previewPayload!)
           : "";
 
   async function copy() {
@@ -162,7 +194,7 @@ export default function WallPage({
     }
   }
 
-  if (loading || !wall) {
+  if (loading || !currentWall) {
     return (
       <main className="mx-auto max-w-6xl px-6 py-10">
         <div className="grid gap-8 lg:grid-cols-[17rem_1fr]">
@@ -208,7 +240,7 @@ export default function WallPage({
         aria-label="Choose your wall style"
       >
         <TemplatePicker
-          value={cardStyle(wall.card_style)}
+          value={cardStyle(currentWall.card_style)}
           onChange={(card_style) => patch({ card_style })}
           disabled={saving}
         />
@@ -229,11 +261,11 @@ export default function WallPage({
                 <button
                   key={l.key}
                   type="button"
-                  aria-pressed={wall.layout === l.key}
+                  aria-pressed={currentWall.layout === l.key}
                   onClick={() => patch({ layout: l.key })}
                   className={cn(
                     "flex w-full items-center gap-3 rounded-md border px-3 py-2.5 text-left transition-[border-color,background-color] duration-[120ms]",
-                    wall.layout === l.key
+                    currentWall.layout === l.key
                       ? "border-accent bg-accent-soft text-accent-text"
                       : "border-line bg-surface text-muted hover:border-line-strong hover:text-ink",
                   )}
@@ -252,7 +284,7 @@ export default function WallPage({
             </div>
           </fieldset>
 
-          {wall.layout === "carousel" && (
+          {currentWall.layout === "carousel" && (
             <fieldset className="animate-settle">
               <legend className="mb-2.5 text-[13px] font-medium text-ink">
                 Carousel style
@@ -262,11 +294,11 @@ export default function WallPage({
                   <button
                     key={c.key}
                     type="button"
-                    aria-pressed={wall.carousel_style === c.key}
+                    aria-pressed={currentWall.carousel_style === c.key}
                     onClick={() => patch({ carousel_style: c.key })}
                     className={cn(
                       "w-full rounded-md border px-3 py-2 text-left transition-[border-color,background-color] duration-[120ms]",
-                      wall.carousel_style === c.key
+                      currentWall.carousel_style === c.key
                         ? "border-accent bg-accent-soft text-accent-text"
                         : "border-line bg-surface text-muted hover:border-line-strong hover:text-ink",
                     )}
@@ -280,7 +312,7 @@ export default function WallPage({
                   </button>
                 ))}
               </div>
-              {wall.carousel_style === "marquee" && (
+              {currentWall.carousel_style === "marquee" && (
                 <p className="mt-2 text-[12px] leading-snug text-subtle">
                   Auto-scrolling stops for visitors who ask for reduced motion.
                 </p>
@@ -297,11 +329,11 @@ export default function WallPage({
                 <button
                   key={t.key}
                   type="button"
-                  aria-pressed={wall.theme === t.key}
+                  aria-pressed={currentWall.theme === t.key}
                   onClick={() => patch({ theme: t.key })}
                   className={cn(
                     "flex-1 rounded-full px-2 py-1.5 text-[12.5px] font-medium transition-colors duration-[120ms]",
-                    wall.theme === t.key
+                    currentWall.theme === t.key
                       ? "bg-accent text-onaccent"
                       : "text-muted hover:text-ink",
                   )}
@@ -322,11 +354,11 @@ export default function WallPage({
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                aria-pressed={wall.accent_color === null}
+                aria-pressed={currentWall.accent_color === null}
                 onClick={() => patch({ accent_color: null })}
                 className={cn(
                   "rounded-full border px-2.5 py-1 text-[12px] transition-colors",
-                  wall.accent_color === null
+                  currentWall.accent_color === null
                     ? "border-accent bg-accent-soft text-accent-text"
                     : "border-line text-muted hover:text-ink",
                 )}
@@ -338,13 +370,15 @@ export default function WallPage({
                   key={a}
                   type="button"
                   aria-label={`Accent ${a}`}
-                  aria-pressed={wall.accent_color === a}
+                  aria-pressed={currentWall.accent_color === a}
                   onClick={() => patch({ accent_color: a })}
                   className="size-7 rounded-full border-2 transition-transform duration-[120ms] hover:scale-110"
                   style={{
                     background: a,
                     borderColor:
-                      wall.accent_color === a ? "var(--v-text)" : "transparent",
+                      currentWall.accent_color === a
+                        ? "var(--v-text)"
+                        : "transparent",
                   }}
                 />
               ))}
@@ -358,7 +392,7 @@ export default function WallPage({
             >
               Show at most{" "}
               <span className="font-mono tabular-nums text-accent-text">
-                {wall.max_items}
+                {currentWall.max_items}
               </span>
             </label>
             <input
@@ -366,7 +400,7 @@ export default function WallPage({
               type="range"
               min={1}
               max={30}
-              value={wall.max_items}
+              value={currentWall.max_items}
               onChange={(e) => patch({ max_items: Number(e.target.value) })}
               className="w-full accent-[var(--v-accent)]"
             />
@@ -375,12 +409,12 @@ export default function WallPage({
           <Card className="px-4 py-1">
             <div className="divide-y divide-line">
               <Switch
-                checked={wall.show_ratings}
+                checked={currentWall.show_ratings}
                 onChange={(v) => patch({ show_ratings: v })}
                 label="Star ratings"
               />
               <Switch
-                checked={wall.include_video}
+                checked={currentWall.include_video}
                 onChange={(v) => patch({ include_video: v })}
                 label="Video testimonials"
               />
@@ -399,12 +433,14 @@ export default function WallPage({
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-[13px] text-muted">
               {
-                WALL_TEMPLATES.find((t) => t.key === cardStyle(wall.card_style))
+                WALL_TEMPLATES.find(
+                  (t) => t.key === cardStyle(currentWall.card_style),
+                )
                   ?.name
               }{" "}
               · Live preview
               <span className="ml-2 text-subtle">
-                {payload?.testimonials.length ?? 0} of {wall.max_items} shown
+                {previewPayload?.testimonials.length ?? 0} of {currentWall.max_items} shown
               </span>
             </p>
             <div className="flex items-center gap-2">
@@ -456,7 +492,7 @@ export default function WallPage({
                 ))}
               </div>
               <a
-                href={`/embed/${wall.id}`}
+                href={`/embed/${currentWall.id}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-[12.5px] text-muted transition-colors hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)] hover:text-ink"
@@ -478,9 +514,9 @@ export default function WallPage({
           <div
             className={cn(
               "rounded-xl border border-line p-5 sm:p-7",
-              wall.theme === "dark" ? "bg-[#161826]" : "",
-              wall.theme === "light" ? "bg-white" : "",
-              wall.theme === "auto" ? "bg-sunk" : "",
+              currentWall.theme === "dark" ? "bg-[#161826]" : "",
+              currentWall.theme === "light" ? "bg-white" : "",
+              currentWall.theme === "auto" ? "bg-sunk" : "",
             )}
           >
             <div
@@ -489,8 +525,8 @@ export default function WallPage({
                 device === "mobile" ? "max-w-[380px]" : "max-w-none",
               )}
             >
-              {payload ? (
-                <WallRender payload={payload} />
+              {previewPayload ? (
+                <WallRender payload={previewPayload} />
               ) : (
                 <Skeleton className="h-72 w-full rounded-lg" />
               )}

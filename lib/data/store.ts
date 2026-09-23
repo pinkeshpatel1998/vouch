@@ -20,6 +20,7 @@ import type {
   Wall,
   WallPayload,
 } from "@/lib/database.types";
+import { invalidateData, subscribeData } from "./events";
 
 const KEY = "vouch-store-v1";
 
@@ -74,20 +75,11 @@ function write(next: Snapshot) {
   } catch {
     // Quota or a private window. The screen stays usable for this session.
   }
-  listeners.forEach((fn) => fn());
+  invalidateData();
 }
 
 /* Subscription so open tabs and sibling components stay in step. */
-const listeners = new Set<() => void>();
-export function subscribe(fn: () => void) {
-  listeners.add(fn);
-  if (typeof window !== "undefined") window.addEventListener("storage", fn);
-  return () => {
-    listeners.delete(fn);
-    if (typeof window !== "undefined")
-      window.removeEventListener("storage", fn);
-  };
-}
+export const subscribe = subscribeData;
 
 /* A tiny delay so loading states are real rather than theoretical. */
 const tick = <T>(value: T): Promise<T> =>

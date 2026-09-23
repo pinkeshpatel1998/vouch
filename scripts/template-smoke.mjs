@@ -67,6 +67,22 @@ try {
       `button[aria-label="${name} template"]:not(:disabled)`,
     );
     await page.click(`button[aria-label="${name} template"]`);
+    assert.equal(
+      await page.$eval(
+        `button[aria-label="${name} template"]`,
+        (button) => button.getAttribute("aria-pressed"),
+      ),
+      "true",
+      `${name} should become selected immediately`,
+    );
+    assert.equal(
+      await page.$eval(
+        "main .vouch-design:not(.template-miniature)",
+        (element) => element.dataset.cardStyle,
+      ),
+      style,
+      `${name} should update the live preview without a refresh`,
+    );
     await page.waitForFunction(
       (style) =>
         document.querySelector("main .vouch-design:not(.template-miniature)")
@@ -237,7 +253,7 @@ try {
   }
   assert.deepEqual(errors, []);
   console.log(
-    "PASS: six template selections, persistence, old-wall fallback, static exports, script embeds, portrait fallbacks, mobile columns, landing preview, and no browser errors.",
+    "PASS: six immediate template previews, persistence, old-wall fallback, static exports, script embeds, portrait fallbacks, mobile columns, landing preview, and no browser errors.",
   );
   console.log("Screenshots:", out);
 } finally {

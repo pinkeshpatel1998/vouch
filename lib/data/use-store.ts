@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { subscribe } from "./store";
+import { subscribeData } from "./events";
 
 /**
  * Runs an async read, then re-runs it whenever the store changes. Returns a
@@ -36,7 +36,7 @@ export function useQuery<T>(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, nonce]);
 
-  React.useEffect(() => subscribe(() => setNonce((n) => n + 1)), []);
+  React.useEffect(() => subscribeData(() => setNonce((n) => n + 1)), []);
 
   return { data, loading, error, refresh: () => setNonce((n) => n + 1) };
 }
