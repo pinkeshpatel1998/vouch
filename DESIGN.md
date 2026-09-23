@@ -1,4 +1,28 @@
-# Vouch — design system decisions
+# Vouch — current visual direction
+
+The September 2026 refresh uses warm ivory, charcoal, burnt orange, and soft olive. Customer stories are the visual focus: editorial headlines, tactile testimonial cards, portrait photography, and generous whitespace.
+
+- Landing page: `app/marketing.css`, oversized Inter with Georgia italic accents, overlapping cards, soft ambient color, and interactive wall previews.
+- Product: `app/globals.css`, a light workspace, olive active navigation, filled primary actions, softly rounded panels, and readable compact forms.
+- Brand: `components/brand.tsx`, shared by marketing, sign-in, and the workspace.
+- Customer walls retain explicit light/dark themes and custom accents. Derived accent colors are recomputed in each space. New spaces default to burnt orange; existing customer colors are preserved.
+- Card radius is 18px across React cards, the JavaScript widget, and HTML exports.
+- Motion: entry transitions, lifted hover states, subtle ambient color, and smooth anchor navigation. Reduced-motion preferences disable decorative movement.
+- Sample stories and stock portraits are labelled as illustrative. They are not customer endorsements.
+- Validation: `npm run check`, `npm run build`, and `node scripts/design-smoke.mjs` against a local server. The smoke check uses an isolated browser profile and writes captures to `/tmp/vouch-design` by default.
+
+## Wall templates
+
+The builder and landing showcase offer six card styles independently of layout: Soft minimal (`classic`), Face to face (`portrait`), Through the glass (`glass`), After hours (`bold`), Good conversation (`bubble`), and The anthology (`editorial`).
+
+`lib/wall-templates.ts` is the shared template catalog and CSS source for React previews, JavaScript widgets, and static HTML. Keep semantic card class names aligned between renderers. Photo designs use the submitter’s actual avatar or initials; preview thumbnails are illustrative examples. Masonry responds to its container width, including the builder’s mobile preview.
+
+`walls.card_style` persists the choice. For an existing Supabase deployment, apply `supabase/migrations/0006_wall_card_styles.sql` before deploying this version. Local browser storage and older payloads fall back to `classic` automatically. `node scripts/template-smoke.mjs` checks selection, persistence, exports, embed rendering, mobile width, and old-wall compatibility.
+
+## Historical Nocturne design notes
+
+The notes below document the previous design. The current direction above supersedes conflicting visual choices; they remain useful background for the component architecture.
+
 
 > **Re-skinned to Nocturne.** The original warm-paper / Fraunces / clay system
 > is preserved at `docs/design-import/globals.warm.css.bak` and in git history.

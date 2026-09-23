@@ -1,13 +1,23 @@
 import { cn } from "@/lib/cn";
 
-/**
- * Nocturne tables paint their row rules as row-level background strips rather
- * than cell borders, so the rule fades out at both ends across the whole row
- * instead of stopping dead at each cell edge. That end-fade is the system's
- * signature; a plain `border-bottom` loses it.
- */
-export function Table({ className, ...props }: React.TableHTMLAttributes<HTMLTableElement>) {
-  return <table className={cn("w-full border-collapse text-[14px]", className)} {...props} />;
+/* Shared tables scroll inside their panel on narrow screens. */
+export function Table({
+  className,
+  ...props
+}: React.TableHTMLAttributes<HTMLTableElement>) {
+  return (
+    <div
+      className="max-w-full overflow-x-auto rounded-lg border border-line bg-surface p-2"
+      role="region"
+      aria-label="Scrollable data table"
+      tabIndex={0}
+    >
+      <table
+        className={cn("w-full border-collapse text-[14px]", className)}
+        {...props}
+      />
+    </div>
+  );
 }
 
 const ruleFade = (color: string) =>
@@ -21,7 +31,10 @@ export function Thead({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function Th({ className, ...props }: React.ThHTMLAttributes<HTMLTableCellElement>) {
+export function Th({
+  className,
+  ...props
+}: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
       className={cn(
@@ -33,16 +46,26 @@ export function Th({ className, ...props }: React.ThHTMLAttributes<HTMLTableCell
   );
 }
 
-export function Tr({ className, ...props }: React.HTMLAttributes<HTMLTableRowElement>) {
+export function Tr({
+  className,
+  ...props
+}: React.HTMLAttributes<HTMLTableRowElement>) {
   return (
     <tr
       className={cn("transition-[background-color]", className)}
-      style={{ background: ruleFade("color-mix(in srgb, var(--v-text) 8%, transparent)") }}
+      style={{
+        background: ruleFade(
+          "color-mix(in srgb, var(--v-text) 8%, transparent)",
+        ),
+      }}
       {...props}
     />
   );
 }
 
-export function Td({ className, ...props }: React.TdHTMLAttributes<HTMLTableCellElement>) {
+export function Td({
+  className,
+  ...props
+}: React.TdHTMLAttributes<HTMLTableCellElement>) {
   return <td className={cn("px-2 py-2 align-middle", className)} {...props} />;
 }

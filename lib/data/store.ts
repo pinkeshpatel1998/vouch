@@ -34,7 +34,8 @@ const EMPTY: Snapshot = { spaces: [], testimonials: [], walls: [] };
 /* ---------------- plumbing ---------------- */
 
 export function uid() {
-  if (typeof crypto !== "undefined" && crypto.randomUUID) return crypto.randomUUID();
+  if (typeof crypto !== "undefined" && crypto.randomUUID)
+    return crypto.randomUUID();
   return `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}`;
 }
 
@@ -83,19 +84,22 @@ export function subscribe(fn: () => void) {
   if (typeof window !== "undefined") window.addEventListener("storage", fn);
   return () => {
     listeners.delete(fn);
-    if (typeof window !== "undefined") window.removeEventListener("storage", fn);
+    if (typeof window !== "undefined")
+      window.removeEventListener("storage", fn);
   };
 }
 
 /* A tiny delay so loading states are real rather than theoretical. */
-const tick = <T,>(value: T): Promise<T> =>
+const tick = <T>(value: T): Promise<T> =>
   new Promise((resolve) => setTimeout(() => resolve(value), 90));
 
 /* ---------------- owner: spaces ---------------- */
 
 export async function listSpaces(): Promise<Space[]> {
   const { spaces } = read();
-  return tick([...spaces].sort((a, b) => b.created_at.localeCompare(a.created_at)));
+  return tick(
+    [...spaces].sort((a, b) => b.created_at.localeCompare(a.created_at)),
+  );
 }
 
 export async function getSpace(id: string): Promise<Space | null> {
@@ -121,7 +125,7 @@ export async function createSpace(input: {
     slug,
     name: input.name.trim(),
     logo_url: null,
-    accent_color: input.accent_color ?? "#9184d9",
+    accent_color: input.accent_color ?? "#b84925",
     prompt_question: "What did we help you achieve?",
     thankyou_message: "Thank you — that genuinely helps.",
     allow_text: true,
@@ -136,6 +140,7 @@ export async function createSpace(input: {
     space_id: space.id,
     layout: "masonry",
     carousel_style: "rail",
+    card_style: "classic",
     theme: "auto",
     accent_color: null,
     max_items: 12,
@@ -144,13 +149,22 @@ export async function createSpace(input: {
     created_at: new Date().toISOString(),
   };
 
-  write({ ...snap, spaces: [...snap.spaces, space], walls: [...snap.walls, wall] });
+  write({
+    ...snap,
+    spaces: [...snap.spaces, space],
+    walls: [...snap.walls, wall],
+  });
   return tick(space);
 }
 
-export async function updateSpace(id: string, patch: Partial<Space>): Promise<Space> {
+export async function updateSpace(
+  id: string,
+  patch: Partial<Space>,
+): Promise<Space> {
   const snap = read();
-  const next = snap.spaces.map((s) => (s.id === id ? { ...s, ...patch, id: s.id } : s));
+  const next = snap.spaces.map((s) =>
+    s.id === id ? { ...s, ...patch, id: s.id } : s,
+  );
   write({ ...snap, spaces: next });
   return tick(next.find((s) => s.id === id)!);
 }
@@ -172,7 +186,9 @@ export async function listTestimonials(
   status?: TestimonialStatus,
 ): Promise<Testimonial[]> {
   const rows = read()
-    .testimonials.filter((t) => t.space_id === spaceId && (!status || t.status === status))
+    .testimonials.filter(
+      (t) => t.space_id === spaceId && (!status || t.status === status),
+    )
     .sort((a, b) => b.submitted_at.localeCompare(a.submitted_at));
   return tick(rows);
 }
@@ -197,7 +213,9 @@ export async function setTestimonialStatus(
   // never reach a wall, whatever the caller asks for.
   const row = snap.testimonials.find((t) => t.id === id);
   if (row && status === "approved" && row.type === "video" && !row.video_url) {
-    throw new Error("A video testimonial cannot be approved before its upload completes");
+    throw new Error(
+      "A video testimonial cannot be approved before its upload completes",
+    );
   }
   const next = snap.testimonials.map((t) =>
     t.id === id
@@ -215,17 +233,24 @@ export async function setTestimonialStatus(
 
 export async function updateTestimonial(
   id: string,
-  patch: Partial<Pick<Testimonial, "body" | "author_name" | "author_role" | "author_company">>,
+  patch: Partial<
+    Pick<Testimonial, "body" | "author_name" | "author_role" | "author_company">
+  >,
 ): Promise<Testimonial> {
   const snap = read();
-  const next = snap.testimonials.map((t) => (t.id === id ? { ...t, ...patch } : t));
+  const next = snap.testimonials.map((t) =>
+    t.id === id ? { ...t, ...patch } : t,
+  );
   write({ ...snap, testimonials: next });
   return tick(next.find((t) => t.id === id)!);
 }
 
 export async function deleteTestimonial(id: string): Promise<void> {
   const snap = read();
-  write({ ...snap, testimonials: snap.testimonials.filter((t) => t.id !== id) });
+  write({
+    ...snap,
+    testimonials: snap.testimonials.filter((t) => t.id !== id),
+  });
   return tick(undefined);
 }
 
@@ -236,7 +261,11 @@ export async function getWallForSpace(spaceId: string): Promise<Wall | null> {
   if (!w) return tick(null);
   // Walls saved before carousel_style existed need the column default applied,
   // the same way the migration does it server-side.
-  return tick({ ...w, carousel_style: w.carousel_style ?? "rail" });
+  return tick({
+    ...w,
+    carousel_style: w.carousel_style ?? "rail",
+    card_style: w.card_style ?? "classic",
+  });
 }
 
 export async function updateWall(
@@ -246,6 +275,7 @@ export async function updateWall(
       Wall,
       | "layout"
       | "carousel_style"
+      | "card_style"
       | "theme"
       | "accent_color"
       | "max_items"
@@ -263,20 +293,42 @@ export async function updateWall(
 /* ---------------- public surface ----------------
    These four mirror the security-definer functions exactly. */
 
-export async function collectionSpace(slug: string): Promise<PublicSpace | null> {
+export async function collectionSpace(
+  slug: string,
+): Promise<PublicSpace | null> {
   const s = read().spaces.find((x) => x.slug === slug);
   if (!s) return tick(null);
   const {
-    id, slug: sl, name, logo_url, accent_color, prompt_question,
-    thankyou_message, allow_text, allow_video, require_photo, show_ratings,
+    id,
+    slug: sl,
+    name,
+    logo_url,
+    accent_color,
+    prompt_question,
+    thankyou_message,
+    allow_text,
+    allow_video,
+    require_photo,
+    show_ratings,
   } = s;
   return tick({
-    id, slug: sl, name, logo_url, accent_color, prompt_question,
-    thankyou_message, allow_text, allow_video, require_photo, show_ratings,
+    id,
+    slug: sl,
+    name,
+    logo_url,
+    accent_color,
+    prompt_question,
+    thankyou_message,
+    allow_text,
+    allow_video,
+    require_photo,
+    show_ratings,
   });
 }
 
-export async function submitTestimonial(args: SubmitTestimonialArgs): Promise<string> {
+export async function submitTestimonial(
+  args: SubmitTestimonialArgs,
+): Promise<string> {
   const snap = read();
   const space = snap.spaces.find((s) => s.slug === args.p_slug);
 
@@ -350,6 +402,7 @@ export async function wallPayload(wallId: string): Promise<WallPayload | null> {
       id: w.id,
       layout: w.layout as Layout,
       carousel_style: w.carousel_style ?? "rail",
+      card_style: w.card_style ?? "classic",
       theme: w.theme as Theme,
       accent_color: w.accent_color ?? s.accent_color,
       show_ratings: showRatings,
@@ -391,7 +444,10 @@ export async function listSpacesOverview(): Promise<SpaceOverview[]> {
 
 /* ---------------- cross-space activity ---------------- */
 
-export type ActivityRow = Testimonial & { space_name: string; space_slug: string };
+export type ActivityRow = Testimonial & {
+  space_name: string;
+  space_slug: string;
+};
 
 /**
  * Recent submissions across every space. Backs the dashboard's activity table
@@ -407,8 +463,8 @@ export async function listActivity(opts?: {
   const byId = new Map(spaces.map((s) => [s.id, s]));
 
   const rows = testimonials
-    .filter((t) => (!opts?.status || t.status === opts.status))
-    .filter((t) => (!opts?.spaceId || t.space_id === opts.spaceId))
+    .filter((t) => !opts?.status || t.status === opts.status)
+    .filter((t) => !opts?.spaceId || t.space_id === opts.spaceId)
     .filter((t) => byId.has(t.space_id))
     .sort((a, b) => b.submitted_at.localeCompare(a.submitted_at))
     .map((t) => ({
@@ -420,7 +476,11 @@ export async function listActivity(opts?: {
   return tick(opts?.limit ? rows.slice(0, opts.limit) : rows);
 }
 
-export async function totals(): Promise<{ spaces: number; collected: number; pending: number }> {
+export async function totals(): Promise<{
+  spaces: number;
+  collected: number;
+  pending: number;
+}> {
   const { spaces, testimonials } = read();
   return tick({
     spaces: spaces.length,
@@ -429,9 +489,10 @@ export async function totals(): Promise<{ spaces: number; collected: number; pen
   });
 }
 
-
 /** Video rows whose upload never landed. Surfaced as an inbox alert. */
-export async function listIncompleteUploads(spaceId: string): Promise<Testimonial[]> {
+export async function listIncompleteUploads(
+  spaceId: string,
+): Promise<Testimonial[]> {
   const rows = read()
     .testimonials.filter(
       (t) => t.space_id === spaceId && t.type === "video" && !t.video_url,

@@ -1,3 +1,4 @@
+import { cardStyle, WALL_TEMPLATE_CSS } from "../lib/wall-templates";
 /**
  * Vouch embed widget.
  *
@@ -29,6 +30,7 @@ type Payload = {
   wall: {
     id: string;
     layout: "masonry" | "carousel" | "single";
+    card_style?: string;
     carousel_style?: "rail" | "marquee" | "spotlight";
     theme: "light" | "dark" | "auto";
     accent_color: string;
@@ -47,8 +49,8 @@ const STYLE = `
 :host{all:initial;display:block;}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 .v{
-  --bg:#ffffff;--sunk:#f3f5fe;--line:rgba(41,43,49,.14);--line-2:#cfd3e5;
-  --ink:#16171d;--muted:#595d6c;--subtle:#75798c;
+  --bg:#ffffff;--sunk:#f5f4ef;--line:rgba(41,43,49,.14);--line-2:#d6d5cb;
+  --ink:#16171d;--muted:#595f51;--subtle:#767b6d;
   --shadow:0 1px 2px rgba(22,24,38,.07);
   --shadow-2:0 1px 2px rgba(22,24,38,.05),0 6px 16px -4px rgba(22,24,38,.12);
   font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -107,8 +109,8 @@ const STYLE = `
   transition:transform .22s cubic-bezier(.22,1,.36,1),opacity .22s;}
 
 .card{
-  break-inside:avoid;background:var(--bg);border:1px solid var(--line);
-  border-radius:8px;padding:20px;box-shadow:var(--shadow);
+  break-inside:avoid;background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 3%,transparent),transparent 60%),var(--bg);border:1px solid var(--line);
+  border-radius:18px;padding:20px;box-shadow:var(--shadow);
   transition:box-shadow .22s cubic-bezier(.22,1,.36,1),transform .22s cubic-bezier(.22,1,.36,1),border-color .22s;
 }
 .card:hover{transform:translateY(-2px);border-color:var(--line-2);box-shadow:var(--shadow-2);}
@@ -129,7 +131,7 @@ const STYLE = `
 .single .card{padding:40px 32px;}
 .mark{width:26px;height:20px;fill:var(--accent);opacity:.35;margin-bottom:16px;display:block;}
 
-.by{display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);}
+.by{display:flex;align-items:center;gap:10px;margin-top:20px;padding-top:16px;border-top:1px solid var(--line);}
 .av{width:36px;height:36px;border-radius:999px;object-fit:cover;flex:0 0 auto;display:grid;
   place-items:center;font-size:13px;font-weight:600;
   background:color-mix(in srgb,var(--accent) 22%,var(--bg));color:color-mix(in srgb,var(--accent) 70%,var(--ink));}
@@ -187,13 +189,23 @@ function svg(path: string, cls: string, viewBox = "0 0 16 16") {
   return s;
 }
 
-const ARROW_L = "M10.28 3.22a.75.75 0 0 1 0 1.06L6.56 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L4.97 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z";
-const ARROW_R = "M5.72 3.22a.75.75 0 0 0 0 1.06L9.44 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06L6.78 3.22a.75.75 0 0 0-1.06 0Z";
-const PLAY = "M4.5 2.6v10.8a.6.6 0 0 0 .92.5l8.4-5.4a.6.6 0 0 0 0-1L5.42 2.1a.6.6 0 0 0-.92.5Z";
-const MARK = "M0 24V13.2C0 5.9 4.2 1.1 11.6 0l1.2 3.9C8.4 5.2 6.2 7.6 6.2 11h5.2v13H0Zm18.6 0V13.2C18.6 5.9 22.8 1.1 30.2 0l1.2 3.9c-4.4 1.3-6.6 3.7-6.6 7.1h5.2v13h-11.4Z";
+const ARROW_L =
+  "M10.28 3.22a.75.75 0 0 1 0 1.06L6.56 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L4.97 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z";
+const ARROW_R =
+  "M5.72 3.22a.75.75 0 0 0 0 1.06L9.44 8l-3.72 3.72a.75.75 0 1 0 1.06 1.06l4.25-4.25a.75.75 0 0 0 0-1.06L6.78 3.22a.75.75 0 0 0-1.06 0Z";
+const PLAY =
+  "M4.5 2.6v10.8a.6.6 0 0 0 .92.5l8.4-5.4a.6.6 0 0 0 0-1L5.42 2.1a.6.6 0 0 0-.92.5Z";
+const MARK =
+  "M0 24V13.2C0 5.9 4.2 1.1 11.6 0l1.2 3.9C8.4 5.2 6.2 7.6 6.2 11h5.2v13H0Zm18.6 0V13.2C18.6 5.9 22.8 1.1 30.2 0l1.2 3.9c-4.4 1.3-6.6 3.7-6.6 7.1h5.2v13h-11.4Z";
 
 function initials(name: string) {
-  return name.trim().split(/\s+/).slice(0, 2).map((p) => p[0] || "").join("").toUpperCase();
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((p) => p[0] || "")
+    .join("")
+    .toUpperCase();
 }
 
 function duration(s: number | null) {
@@ -202,7 +214,11 @@ function duration(s: number | null) {
 }
 
 function stars(n: number) {
-  const d = el("div", { class: "stars", role: "img", "aria-label": n + " out of 5 stars" });
+  const d = el("div", {
+    class: "stars vouch-stars",
+    role: "img",
+    "aria-label": n + " out of 5 stars",
+  });
   d.append("★".repeat(n));
   if (n < 5) d.append(el("span", { class: "off" }, "★".repeat(5 - n)));
   return d;
@@ -211,20 +227,31 @@ function stars(n: number) {
 function attribution(t: Item) {
   const meta = [t.author_role, t.author_company].filter(Boolean).join(", ");
   const av = t.author_avatar_url
-    ? el("img", { class: "av", src: t.author_avatar_url, alt: "", loading: "lazy", width: "36", height: "36" })
-    : el("span", { class: "av" }, initials(t.author_name));
+    ? el("img", {
+        class: "av vouch-avatar",
+        src: t.author_avatar_url,
+        alt: "",
+        loading: "lazy",
+        width: "36",
+        height: "36",
+      })
+    : el("span", { class: "av vouch-avatar" }, initials(t.author_name));
 
-  const who = el("span", {}, el("span", { class: "name" }, t.author_name));
-  if (meta) who.append(el("span", { class: "meta" }, meta));
+  const who = el(
+    "span",
+    {},
+    el("span", { class: "name vouch-name" }, t.author_name),
+  );
+  if (meta) who.append(el("span", { class: "meta vouch-meta" }, meta));
 
-  return el("figcaption", { class: "by" }, av, who);
+  return el("figcaption", { class: "by vouch-by" }, av, who);
 }
 
 /* Video is click-to-play: never autoplay on someone else's page, and never
    navigate away from it. preload="none" keeps a wall of videos cheap. */
 function media(t: Item) {
   const btn = el("button", {
-    class: "media",
+    class: "media vouch-video",
     type: "button",
     "aria-label": "Play video testimonial from " + t.author_name,
   });
@@ -241,7 +268,13 @@ function media(t: Item) {
 
   btn.addEventListener("click", () => {
     if (!t.video_url) return;
-    const v = el("video", { src: t.video_url, controls: "", playsinline: "", preload: "metadata" });
+    const v = el("video", {
+      class: "vouch-video",
+      src: t.video_url,
+      controls: "",
+      playsinline: "",
+      preload: "metadata",
+    });
     if (t.poster_url) v.setAttribute("poster", t.poster_url);
     btn.replaceWith(v);
     void v.play().catch(() => {});
@@ -250,13 +283,37 @@ function media(t: Item) {
   return btn;
 }
 
-function card(t: Item, showRatings: boolean, i: number, settle: boolean) {
-  const f = el("figure", { class: "card" + (settle ? " settle" : "") });
+function card(
+  t: Item,
+  showRatings: boolean,
+  i: number,
+  settle: boolean,
+  appearance = "classic",
+) {
+  const f = el("figure", {
+    class: "card vouch-card" + (settle ? " settle" : ""),
+  });
   if (settle) f.style.animationDelay = Math.min(i, 12) * 55 + "ms";
 
+  if (["portrait", "glass", "editorial"].includes(appearance)) {
+    f.append(
+      el(
+        "div",
+        { class: "vouch-portrait", "aria-hidden": "true" },
+        t.author_avatar_url
+          ? el("img", { src: t.author_avatar_url, alt: "", loading: "lazy" })
+          : el("span", {}, initials(t.author_name)),
+      ),
+    );
+  }
+  if (appearance === "bold" || appearance === "bubble")
+    f.append(
+      el("span", { class: "vouch-decoration", "aria-hidden": "true" }, "“"),
+    );
   if (t.type === "video" && t.video_url) f.append(media(t));
   if (showRatings && t.rating) f.append(stars(t.rating));
-  if (t.body) f.append(el("blockquote", { class: "quote" }, t.body));
+  if (t.body)
+    f.append(el("blockquote", { class: "quote vouch-quote" }, t.body));
   f.append(attribution(t));
   return f;
 }
@@ -266,30 +323,55 @@ function card(t: Item, showRatings: boolean, i: number, settle: boolean) {
 /* ------------------------------------------------------------------ */
 
 function masonry(p: Payload) {
-  const g = el("div", { class: "grid" });
-  p.testimonials.forEach((t, i) => g.append(card(t, p.wall.show_ratings, i, true)));
+  const g = el("div", { class: "grid vouch-masonry" });
+  p.testimonials.forEach((t, i) =>
+    g.append(
+      card(t, p.wall.show_ratings, i, true, cardStyle(p.wall.card_style)),
+    ),
+  );
   return g;
 }
 
 function carousel(p: Payload) {
   const wrap = el("div", {});
-  const rail = el("div", { class: "rail", role: "region", "aria-label": "Testimonials", tabindex: "0" });
-  p.testimonials.forEach((t, i) => rail.append(card(t, p.wall.show_ratings, i, false)));
+  const rail = el("div", {
+    class: "rail",
+    role: "region",
+    "aria-label": "Testimonials",
+    tabindex: "0",
+  });
+  p.testimonials.forEach((t, i) =>
+    rail.append(
+      card(t, p.wall.show_ratings, i, false, cardStyle(p.wall.card_style)),
+    ),
+  );
 
-  const prev = el("button", { type: "button", "aria-label": "Previous testimonials" }, svg(ARROW_L, ""));
-  const next = el("button", { type: "button", "aria-label": "Next testimonials" }, svg(ARROW_R, ""));
+  const prev = el(
+    "button",
+    { type: "button", "aria-label": "Previous testimonials" },
+    svg(ARROW_L, ""),
+  );
+  const next = el(
+    "button",
+    { type: "button", "aria-label": "Next testimonials" },
+    svg(ARROW_R, ""),
+  );
 
   const sync = () => {
     prev.disabled = rail.scrollLeft < 8;
     next.disabled = rail.scrollLeft + rail.clientWidth >= rail.scrollWidth - 8;
   };
   const page = (dir: number) =>
-    rail.scrollBy({ left: dir * Math.max(280, rail.clientWidth * 0.8), behavior: "smooth" });
+    rail.scrollBy({
+      left: dir * Math.max(280, rail.clientWidth * 0.8),
+      behavior: "smooth",
+    });
 
   prev.addEventListener("click", () => page(-1));
   next.addEventListener("click", () => page(1));
   rail.addEventListener("scroll", sync);
-  if (typeof ResizeObserver !== "undefined") new ResizeObserver(sync).observe(rail);
+  if (typeof ResizeObserver !== "undefined")
+    new ResizeObserver(sync).observe(rail);
 
   wrap.append(rail, el("div", { class: "nav" }, prev, next));
   setTimeout(sync, 0);
@@ -299,14 +381,21 @@ function carousel(p: Payload) {
 function marquee(p: Payload) {
   const wrap = el("div", { class: "mq" });
   const track = el("div", { class: "mq-track" });
-  track.style.setProperty("--dur", Math.max(24, p.testimonials.length * 6) + "s");
+  track.style.setProperty(
+    "--dur",
+    Math.max(24, p.testimonials.length * 6) + "s",
+  );
 
   // Two identical sets; translating the track -50% lands set two exactly where
   // set one began, so the loop has no seam. The clone is hidden from a11y.
   for (let k = 0; k < 2; k++) {
     const set = el("div", { class: "mq-set" });
     if (k === 1) set.setAttribute("aria-hidden", "true");
-    p.testimonials.forEach((t, i) => set.append(card(t, p.wall.show_ratings, i, false)));
+    p.testimonials.forEach((t, i) =>
+      set.append(
+        card(t, p.wall.show_ratings, i, false, cardStyle(p.wall.card_style)),
+      ),
+    );
     track.append(set);
   }
 
@@ -321,7 +410,11 @@ function spotlight(p: Payload) {
     "aria-label": "Testimonials",
     tabindex: "0",
   });
-  p.testimonials.forEach((t, i) => rail.append(card(t, p.wall.show_ratings, i, false)));
+  p.testimonials.forEach((t, i) =>
+    rail.append(
+      card(t, p.wall.show_ratings, i, false, cardStyle(p.wall.card_style)),
+    ),
+  );
 
   let frame = 0;
   const paint = () => {
@@ -344,7 +437,8 @@ function spotlight(p: Payload) {
     },
     { passive: true },
   );
-  if (typeof ResizeObserver !== "undefined") new ResizeObserver(paint).observe(rail);
+  if (typeof ResizeObserver !== "undefined")
+    new ResizeObserver(paint).observe(rail);
   setTimeout(paint, 0);
   return rail;
 }
@@ -357,18 +451,26 @@ function single(p: Payload) {
   let index = 0;
   const draw = () => {
     const t = p.testimonials[index];
-    const f = el("figure", { class: "card settle" });
-    f.append(svg(MARK, "mark", "0 0 32 24"));
-    if (p.wall.show_ratings && t.rating) f.append(stars(t.rating));
-    if (t.body) f.append(el("blockquote", { class: "quote" }, t.body));
-    f.append(attribution(t));
-    slot.replaceChildren(f);
-    dots.querySelectorAll("button").forEach((b, i) =>
-      b.setAttribute("aria-selected", String(i === index)),
+    const f = card(
+      t,
+      p.wall.show_ratings,
+      0,
+      true,
+      cardStyle(p.wall.card_style),
     );
+    if (cardStyle(p.wall.card_style) === "classic")
+      f.prepend(svg(MARK, "mark", "0 0 32 24"));
+    slot.replaceChildren(f);
+    dots
+      .querySelectorAll("button")
+      .forEach((b, i) => b.setAttribute("aria-selected", String(i === index)));
   };
 
-  const dots = el("div", { class: "dots", role: "tablist", "aria-label": "Choose a testimonial" });
+  const dots = el("div", {
+    class: "dots",
+    role: "tablist",
+    "aria-label": "Choose a testimonial",
+  });
   if (p.testimonials.length > 1) {
     p.testimonials.forEach((t, i) => {
       const b = el("button", {
@@ -414,16 +516,18 @@ function mount(script: HTMLScriptElement) {
   const root = host.attachShadow({ mode: "open" });
 
   const style = document.createElement("style");
-  style.textContent = STYLE;
-  const stage = el("div", { class: "v" });
+  style.textContent = STYLE + WALL_TEMPLATE_CSS;
+  const stage = el("div", { class: "v vouch-design" });
   root.append(style, stage);
 
-  const fail = (text: string) => stage.replaceChildren(el("div", { class: "msg" }, text));
+  const fail = (text: string) =>
+    stage.replaceChildren(el("div", { class: "msg" }, text));
 
   // data-api is an escape hatch for testing and for self-hosted deployments
   // where the JSON lives somewhere other than the script's own origin.
   const api =
-    script.getAttribute("data-api") || origin + "/api/walls/" + encodeURIComponent(wallId);
+    script.getAttribute("data-api") ||
+    origin + "/api/walls/" + encodeURIComponent(wallId);
 
   fetch(api, { headers: { accept: "application/json" } })
     .then((r) => {
@@ -434,6 +538,7 @@ function mount(script: HTMLScriptElement) {
       if (!p || !p.wall) return fail("This wall is no longer available.");
 
       stage.setAttribute("data-theme", p.wall.theme);
+      stage.setAttribute("data-card-style", cardStyle(p.wall.card_style));
       stage.style.setProperty("--accent", p.wall.accent_color);
 
       if (!p.testimonials.length) return fail("No testimonials yet.");
@@ -454,9 +559,13 @@ function mount(script: HTMLScriptElement) {
       // Fire and forget; a failed count must never break the wall.
       try {
         const body = JSON.stringify({ referrer_domain: location.hostname });
-        const url = origin + "/api/walls/" + encodeURIComponent(wallId) + "/view";
+        const url =
+          origin + "/api/walls/" + encodeURIComponent(wallId) + "/view";
         if (navigator.sendBeacon) {
-          navigator.sendBeacon(url, new Blob([body], { type: "application/json" }));
+          navigator.sendBeacon(
+            url,
+            new Blob([body], { type: "application/json" }),
+          );
         } else {
           void fetch(url, { method: "POST", body, keepalive: true });
         }
@@ -471,7 +580,9 @@ function mount(script: HTMLScriptElement) {
 // querySelector is for the case where this file is bundled or re-executed.
 const self_ =
   (document.currentScript as HTMLScriptElement | null) ??
-  document.querySelector<HTMLScriptElement>("script[data-wall]:not([data-vouch-done])");
+  document.querySelector<HTMLScriptElement>(
+    "script[data-wall]:not([data-vouch-done])",
+  );
 
 if (self_) {
   self_.setAttribute("data-vouch-done", "");

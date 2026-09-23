@@ -130,7 +130,7 @@ export default function CollectPage({ params }: { params: Promise<{ slug: string
 
   return (
     <div
-      className="min-h-dvh bg-bg"
+      className="collection-shell"
       style={{ ["--v-accent" as string]: space.accent_color } as React.CSSProperties}
     >
       <main className="mx-auto max-w-xl px-5 pb-20 pt-10 sm:pt-16">

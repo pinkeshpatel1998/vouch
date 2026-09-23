@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Brand, Arrow } from "@/components/brand";
 import { cn } from "@/lib/cn";
 
 /**
@@ -27,27 +28,15 @@ const NAV = [
   },
 ];
 
-function Mark() {
-  return (
-    <span className="grid size-6 shrink-0 place-items-center rounded-md bg-accent-soft">
-      <svg viewBox="0 0 20 20" className="size-3.5 text-accent" fill="currentColor" aria-hidden>
-        <path d="M10 1.6a8.4 8.4 0 1 1 0 16.8 8.4 8.4 0 0 1 0-16.8Zm3.9 5.7a.9.9 0 0 0-1.28 0L9 10.93 7.38 9.3A.9.9 0 0 0 6.1 10.6l2.26 2.26a.9.9 0 0 0 1.28 0l4.26-4.27a.9.9 0 0 0 0-1.28Z" />
-      </svg>
-    </span>
-  );
-}
-
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="min-h-dvh md:grid md:grid-cols-[13.5rem_1fr]">
+    <div className="workspace-shell min-h-dvh md:grid md:grid-cols-[15rem_1fr]">
       {/* ---------- sidebar ---------- */}
-      <aside className="border-line md:sticky md:top-0 md:h-dvh md:border-r">
-        <div className="flex items-center gap-2 px-4 py-4">
-          <Mark />
-          <span className="font-display text-[17px] text-ink">Vouch</span>
-        </div>
+      <aside className="workspace-sidebar border-line md:sticky md:top-0 md:h-dvh md:border-r">
+        <Brand />
+        <p className="sidebar-label">YOUR WORKSPACE</p>
 
         <nav
           aria-label="Sections"
@@ -57,8 +46,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             // /app must not stay lit while a space beneath it is open.
             const active =
               item.href === "/app"
-                ? pathname === "/app" || /^\/app\/(?!submissions|account)/.test(pathname)
-                : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                ? pathname === "/app" ||
+                  /^\/app\/(?!submissions|account)/.test(pathname)
+                : pathname === item.href ||
+                  pathname.startsWith(`${item.href}/`);
             return (
               <Link
                 key={item.href}
@@ -71,7 +62,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                     : "text-muted hover:bg-[color-mix(in_srgb,var(--v-text)_6%,transparent)] hover:text-ink",
                 )}
               >
-                <svg viewBox="0 0 20 20" className="size-4 shrink-0" fill="currentColor" aria-hidden>
+                <svg
+                  viewBox="0 0 20 20"
+                  className="size-4 shrink-0"
+                  fill="currentColor"
+                  aria-hidden
+                >
                   <path d={item.icon} />
                 </svg>
                 {item.label}
@@ -79,9 +75,44 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             );
           })}
         </nav>
+        <div className="sidebar-bottom">
+          <div className="sidebar-note">
+            <span aria-hidden="true">✳</span>
+            <strong>A little love goes a long way.</strong>
+            <p>Your best advocates are the people you’ve already helped.</p>
+            <Link href="/#showcase">
+              Find your inspiration <Arrow diagonal />
+            </Link>
+          </div>
+          <Link href="/app/account">
+            <span className="grid size-7 place-items-center rounded-full bg-[#e1e7d3] text-[10px]">
+              V
+            </span>{" "}
+            Your account <Arrow diagonal />
+          </Link>
+        </div>
       </aside>
 
-      <div className="min-w-0">{children}</div>
+      <div className="min-w-0">
+        <div className="workspace-topbar">
+          <span>
+            Workspace <span>/</span>
+            <b>
+              {pathname.includes("/account")
+                ? "Account"
+                : pathname.includes("/submissions")
+                  ? "All submissions"
+                  : pathname === "/app"
+                    ? "Overview"
+                    : "Your space"}
+            </b>
+          </span>
+          <Link href="/">
+            Made for good words <span aria-hidden="true">✳</span>
+          </Link>
+        </div>
+        <div className="workspace-content">{children}</div>
+      </div>
     </div>
   );
 }

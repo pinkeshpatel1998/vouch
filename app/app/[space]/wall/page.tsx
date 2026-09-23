@@ -5,6 +5,8 @@ import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/button";
 import { Card, Skeleton } from "@/components/ui/primitives";
 import { Switch } from "@/components/ui/switch";
+import { TemplatePicker } from "@/components/wall/template-picker";
+import { cardStyle, WALL_TEMPLATES } from "@/lib/wall-templates";
 import { WallRender } from "@/components/wall/wall-render";
 import { useQuery } from "@/lib/data/use-store";
 import { getSpace, getWallForSpace, updateWall, wallPayload } from "@/lib/data";
@@ -17,9 +19,17 @@ const LAYOUTS: Array<{ key: Layout; label: string; note: string }> = [
   { key: "single", label: "Single", note: "One quote, large" },
 ];
 
-const CAROUSEL_STYLES: Array<{ key: CarouselStyle; label: string; note: string }> = [
+const CAROUSEL_STYLES: Array<{
+  key: CarouselStyle;
+  label: string;
+  note: string;
+}> = [
   { key: "rail", label: "Rail", note: "Snap scroll with arrows" },
-  { key: "marquee", label: "Marquee", note: "Loops on its own, pauses on hover" },
+  {
+    key: "marquee",
+    label: "Marquee",
+    note: "Loops on its own, pauses on hover",
+  },
   { key: "spotlight", label: "Spotlight", note: "Centre card in focus" },
 ];
 
@@ -30,12 +40,12 @@ const THEMES: Array<{ key: Theme; label: string }> = [
 ];
 
 const ACCENTS = [
-  "#9184d9", // blurple — the system default
-  "#7fb2a6", // sage
-  "#c98f6a", // clay
-  "#6f8fd0", // steel
-  "#d98fa8", // rose
-  "#ded8cf", // bone
+  "#b84925", // burnt orange — the system default
+  "#52734d", // forest
+  "#a76b43", // clay
+  "#486c9c", // steel
+  "#aa526c", // rose
+  "#4d5548", // olive
 ];
 
 type SnippetTab = "script" | "html" | "iframe";
@@ -68,7 +78,10 @@ function LayoutGlyph({ layout }: { layout: Layout }) {
       </span>
     );
   return (
-    <span className="flex h-6 w-8 flex-col justify-center gap-[3px]" aria-hidden>
+    <span
+      className="flex h-6 w-8 flex-col justify-center gap-[3px]"
+      aria-hidden
+    >
       <span className={cn(bar, "h-1.5 w-6")} />
       <span className={cn(bar, "h-1.5 w-8")} />
       <span className={cn(bar, "h-1.5 w-5")} />
@@ -76,18 +89,37 @@ function LayoutGlyph({ layout }: { layout: Layout }) {
   );
 }
 
-export default function WallPage({ params }: { params: Promise<{ space: string }> }) {
+export default function WallPage({
+  params,
+}: {
+  params: Promise<{ space: string }>;
+}) {
   const { space: spaceId } = React.use(params);
 
   const { data: space } = useQuery(() => getSpace(spaceId), [spaceId]);
-  const { data: wall, loading } = useQuery(() => getWallForSpace(spaceId), [spaceId]);
+  const { data: wall, loading } = useQuery(
+    () => getWallForSpace(spaceId),
+    [spaceId],
+  );
   const { data: payload } = useQuery(
     () => (wall ? wallPayload(wall.id) : Promise.resolve(null)),
-    [wall?.id, wall?.layout, wall?.carousel_style, wall?.theme, wall?.accent_color, wall?.max_items, wall?.show_ratings, wall?.include_video],
+    [
+      wall?.id,
+      wall?.layout,
+      wall?.carousel_style,
+      wall?.card_style,
+      wall?.theme,
+      wall?.accent_color,
+      wall?.max_items,
+      wall?.show_ratings,
+      wall?.include_video,
+    ],
   );
 
   const [tab, setTab] = React.useState<SnippetTab>("script");
   const [device, setDevice] = React.useState<"desktop" | "mobile">("desktop");
+  const [saving, setSaving] = React.useState(false);
+  const [saveError, setSaveError] = React.useState<string | null>(null);
   const [copied, setCopied] = React.useState(false);
   const [origin, setOrigin] = React.useState("https://vouch.app");
 
@@ -95,7 +127,19 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
 
   async function patch(next: Partial<Wall>) {
     if (!wall) return;
-    await updateWall(wall.id, next);
+    setSaving(true);
+    setSaveError(null);
+    try {
+      await updateWall(wall.id, next);
+    } catch (error) {
+      setSaveError(
+        error instanceof Error
+          ? error.message
+          : "Could not save your style. Please try again.",
+      );
+    } finally {
+      setSaving(false);
+    }
   }
 
   const snippet = !wall
@@ -135,11 +179,51 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-10">
+      <header className="builder-heading">
+        <div>
+          <h1>Make their words feel like you.</h1>
+          <p>
+            Pick a personality, choose a layout, and give your customer stories
+            a home.
+          </p>
+        </div>
+        <span role="status">
+          {saving
+            ? "Saving your changes…"
+            : saveError
+              ? "Changes not saved"
+              : "Changes save automatically"}
+        </span>
+      </header>
+      {saveError && (
+        <p
+          role="alert"
+          className="mb-4 rounded-md border border-danger p-3 text-sm text-danger"
+        >
+          {saveError}
+        </p>
+      )}
+      <section
+        className="builder-templates"
+        aria-label="Choose your wall style"
+      >
+        <TemplatePicker
+          value={cardStyle(wall.card_style)}
+          onChange={(card_style) => patch({ card_style })}
+          disabled={saving}
+        />
+        <p>
+          Every style works with every layout. Portrait styles use your
+          customers’ photos, with initials when no photo is available.
+        </p>
+      </section>
       <div className="grid gap-8 lg:grid-cols-[17rem_1fr] lg:gap-10">
         {/* ---------- controls ---------- */}
         <div className="space-y-7">
           <fieldset>
-            <legend className="mb-2.5 text-[13px] font-medium text-ink">Layout</legend>
+            <legend className="mb-2.5 text-[13px] font-medium text-ink">
+              Layout
+            </legend>
             <div className="space-y-2">
               {LAYOUTS.map((l) => (
                 <button
@@ -156,8 +240,12 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
                 >
                   <LayoutGlyph layout={l.key} />
                   <span className="min-w-0">
-                    <span className="block text-[13.5px] font-medium">{l.label}</span>
-                    <span className="block text-[12px] opacity-70">{l.note}</span>
+                    <span className="block text-[13.5px] font-medium">
+                      {l.label}
+                    </span>
+                    <span className="block text-[12px] opacity-70">
+                      {l.note}
+                    </span>
                   </span>
                 </button>
               ))}
@@ -166,7 +254,9 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
 
           {wall.layout === "carousel" && (
             <fieldset className="animate-settle">
-              <legend className="mb-2.5 text-[13px] font-medium text-ink">Carousel style</legend>
+              <legend className="mb-2.5 text-[13px] font-medium text-ink">
+                Carousel style
+              </legend>
               <div className="space-y-2">
                 {CAROUSEL_STYLES.map((c) => (
                   <button
@@ -181,8 +271,12 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
                         : "border-line bg-surface text-muted hover:border-line-strong hover:text-ink",
                     )}
                   >
-                    <span className="block text-[13.5px] font-medium">{c.label}</span>
-                    <span className="block text-[12px] opacity-70">{c.note}</span>
+                    <span className="block text-[13.5px] font-medium">
+                      {c.label}
+                    </span>
+                    <span className="block text-[12px] opacity-70">
+                      {c.note}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -195,7 +289,9 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
           )}
 
           <fieldset>
-            <legend className="mb-2.5 text-[13px] font-medium text-ink">Theme</legend>
+            <legend className="mb-2.5 text-[13px] font-medium text-ink">
+              Theme
+            </legend>
             <div className="inline-flex w-full rounded-full border border-line bg-surface p-0.5 shadow-low">
               {THEMES.map((t) => (
                 <button
@@ -205,7 +301,9 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
                   onClick={() => patch({ theme: t.key })}
                   className={cn(
                     "flex-1 rounded-full px-2 py-1.5 text-[12.5px] font-medium transition-colors duration-[120ms]",
-                    wall.theme === t.key ? "bg-accent text-onaccent" : "text-muted hover:text-ink",
+                    wall.theme === t.key
+                      ? "bg-accent text-onaccent"
+                      : "text-muted hover:text-ink",
                   )}
                 >
                   {t.label}
@@ -218,7 +316,9 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
           </fieldset>
 
           <fieldset>
-            <legend className="mb-2.5 text-[13px] font-medium text-ink">Accent</legend>
+            <legend className="mb-2.5 text-[13px] font-medium text-ink">
+              Accent
+            </legend>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
@@ -243,7 +343,8 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
                   className="size-7 rounded-full border-2 transition-transform duration-[120ms] hover:scale-110"
                   style={{
                     background: a,
-                    borderColor: wall.accent_color === a ? "var(--v-text)" : "transparent",
+                    borderColor:
+                      wall.accent_color === a ? "var(--v-text)" : "transparent",
                   }}
                 />
               ))}
@@ -251,9 +352,14 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
           </fieldset>
 
           <div>
-            <label htmlFor="max-items" className="mb-2 block text-[13px] font-medium text-ink">
+            <label
+              htmlFor="max-items"
+              className="mb-2 block text-[13px] font-medium text-ink"
+            >
               Show at most{" "}
-              <span className="font-mono tabular-nums text-accent-text">{wall.max_items}</span>
+              <span className="font-mono tabular-nums text-accent-text">
+                {wall.max_items}
+              </span>
             </label>
             <input
               id="max-items"
@@ -281,8 +387,8 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
             </div>
             {!space?.show_ratings && (
               <p className="pb-3 text-[12px] leading-snug text-subtle">
-                Ratings are off for the whole space in Settings, so they stay hidden here either
-                way.
+                Ratings are off for the whole space in Settings, so they stay
+                hidden here either way.
               </p>
             )}
           </Card>
@@ -292,7 +398,11 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
         <div className="min-w-0">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
             <p className="text-[13px] text-muted">
-              Live preview — the real widget
+              {
+                WALL_TEMPLATES.find((t) => t.key === cardStyle(wall.card_style))
+                  ?.name
+              }{" "}
+              · Live preview
               <span className="ml-2 text-subtle">
                 {payload?.testimonials.length ?? 0} of {wall.max_items} shown
               </span>
@@ -307,8 +417,16 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
               >
                 {(
                   [
-                    ["desktop", "Desktop", "M2.5 4.75A1.25 1.25 0 0 1 3.75 3.5h12.5a1.25 1.25 0 0 1 1.25 1.25v7.5a1.25 1.25 0 0 1-1.25 1.25H11v1.5h2a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1 0-1.5h2v-1.5H3.75a1.25 1.25 0 0 1-1.25-1.25v-7.5Z"],
-                    ["mobile", "Mobile", "M6 2.5h8A1.5 1.5 0 0 1 15.5 4v12a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 16V4A1.5 1.5 0 0 1 6 2.5Zm2.75 12a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z"],
+                    [
+                      "desktop",
+                      "Desktop",
+                      "M2.5 4.75A1.25 1.25 0 0 1 3.75 3.5h12.5a1.25 1.25 0 0 1 1.25 1.25v7.5a1.25 1.25 0 0 1-1.25 1.25H11v1.5h2a.75.75 0 0 1 0 1.5H7a.75.75 0 0 1 0-1.5h2v-1.5H3.75a1.25 1.25 0 0 1-1.25-1.25v-7.5Z",
+                    ],
+                    [
+                      "mobile",
+                      "Mobile",
+                      "M6 2.5h8A1.5 1.5 0 0 1 15.5 4v12a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 16V4A1.5 1.5 0 0 1 6 2.5Zm2.75 12a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z",
+                    ],
                   ] as Array<["desktop" | "mobile", string, string]>
                 ).map(([key, label, icon], i) => (
                   <button
@@ -326,7 +444,12 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
                         : "text-muted hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)]",
                     )}
                   >
-                    <svg viewBox="0 0 20 20" className="size-4" fill="currentColor" aria-hidden>
+                    <svg
+                      viewBox="0 0 20 20"
+                      className="size-4"
+                      fill="currentColor"
+                      aria-hidden
+                    >
                       <path d={icon} />
                     </svg>
                   </button>
@@ -339,7 +462,12 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
                 className="inline-flex items-center gap-1.5 rounded-md border border-line px-2.5 py-1.5 text-[12.5px] text-muted transition-colors hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)] hover:text-ink"
               >
                 Open standalone
-                <svg viewBox="0 0 16 16" className="size-3" fill="currentColor" aria-hidden>
+                <svg
+                  viewBox="0 0 16 16"
+                  className="size-3"
+                  fill="currentColor"
+                  aria-hidden
+                >
                   <path d="M6 3.5a.75.75 0 0 0 0 1.5h2.44L4.22 9.22a.75.75 0 1 0 1.06 1.06L9.5 6.06V8.5a.75.75 0 0 0 1.5 0v-4a.75.75 0 0 0-.75-.75H6Z" />
                   <path d="M3.5 5.75A2.25 2.25 0 0 1 5.75 3.5h1a.75.75 0 0 1 0 1.5h-1a.75.75 0 0 0-.75.75v4.5c0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75v-1a.75.75 0 0 1 1.5 0v1a2.25 2.25 0 0 1-2.25 2.25h-4.5A2.25 2.25 0 0 1 3.5 10.25v-4.5Z" />
                 </svg>
@@ -391,7 +519,9 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
                     onClick={() => setTab(key)}
                     className={cn(
                       "rounded-full px-3 py-1.5 text-[12.5px] font-medium transition-colors duration-[120ms]",
-                      tab === key ? "bg-accent text-onaccent" : "text-muted hover:text-ink",
+                      tab === key
+                        ? "bg-accent text-onaccent"
+                        : "text-muted hover:text-ink",
                     )}
                   >
                     {label}
@@ -404,7 +534,7 @@ export default function WallPage({ params }: { params: Promise<{ space: string }
             </div>
 
             <p className="mt-3 text-[12px] leading-relaxed text-subtle">
-              Widget weighs 4.8kb gzipped. Shadow DOM, no framework.
+              Your selected template is included in every embed.
             </p>
             <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
               {tab === "script"

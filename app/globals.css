@@ -1,89 +1,71 @@
 @import "tailwindcss";
 
-/* ============================================================
-   VOUCH DESIGN TOKENS
-   Two layers:
-   1. Raw palette + primitives (--v-*), swapped for dark mode
-   2. @theme inline semantic aliases -> Tailwind utilities
-   Accent is a single runtime variable. Override --v-accent on any
-   subtree (a space, the wall widget) and every tint follows.
-   ============================================================ */
-
+/* Warm paper, burnt orange, and charcoal. Explicit theme scopes keep
+   customer walls independent from the application palette. */
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
-
-/* ============================================================
-   NOCTURNE — dark indigo ground, blurple accent.
-   Ported from the Claude Design spec (docs/design-import).
-
-   The app is dark. The *wall* is not: a widget has to render on
-   whatever site it lands on, so [data-theme="light"] below still
-   produces a full light palette for the builder preview and the
-   embed. That split is why the theme blocks are element-scoped.
-   ============================================================ */
 
 :root {
   /* --- neutral ramp, one shared OKLCH lightness scale --- */
-  --v-neutral-100: #f3f5fe;
-  --v-neutral-200: #e4e7f5;
-  --v-neutral-300: #cfd3e5;
-  --v-neutral-400: #b2b6ca;
-  --v-neutral-500: #9397ab;
-  --v-neutral-600: #75798c;
-  --v-neutral-700: #595d6c;
-  --v-neutral-800: #3f424d;
-  --v-neutral-900: #292b31;
+  --v-neutral-100: #f5f4ef;
+  --v-neutral-200: #e9e7df;
+  --v-neutral-300: #d6d5cb;
+  --v-neutral-400: #b5b6aa;
+  --v-neutral-500: #919587;
+  --v-neutral-600: #767b6d;
+  --v-neutral-700: #595f51;
+  --v-neutral-800: #3e4439;
+  --v-neutral-900: #292e25;
 
-  /* --- accent: blurple. One knob; everything below derives. --- */
-  --v-accent: #9184d9;
+  /* --- brand accent --- */
+  --v-accent: #b84925;
 
-  --v-accent-100: #f5f4ff;
-  --v-accent-200: #e7e5fe;
-  --v-accent-300: #d2cefd;
-  --v-accent-400: #b5abfc;
-  --v-accent-500: #968ae0;
-  --v-accent-600: #796cbf;
-  --v-accent-700: #5d5294;
-  --v-accent-800: #423a6a;
-  --v-accent-900: #2b2741;
+  --v-accent-100: #fff8f2;
+  --v-accent-200: #f9e6d9;
+  --v-accent-300: #f2c7ab;
+  --v-accent-400: #e59c75;
+  --v-accent-500: #cd7048;
+  --v-accent-600: #b84925;
+  --v-accent-700: #933b20;
+  --v-accent-800: #6e301f;
+  --v-accent-900: #44251b;
 
   /* --- status --- */
-  --v-success: #7fb2a6;
-  --v-warning: #d8a657;
-  --v-danger:  #d97e7e;
+  --v-success: #437450;
+  --v-warning: #987028;
+  --v-danger: #b34040;
 
-  /* --- semantic surfaces (dark is the default here) --- */
-  --v-bg:            #161826;
-  --v-surface:       #232532;
-  --v-surface-sunk:  #12141d;
-  --v-surface-hover: #2b2e3d;
-  --v-border:        color-mix(in srgb, #e9e9ed 16%, transparent);
-  --v-border-strong: var(--v-neutral-700);
-  --v-text:          #e9e9ed;
-  --v-text-muted:    color-mix(in srgb, #e9e9ed 70%, transparent);
-  --v-text-subtle:   color-mix(in srgb, #e9e9ed 52%, transparent);
-  --v-text-onaccent: #14121f;
+  /* --- application surfaces --- */
+  --v-bg: #f7f7f2;
+  --v-surface: #ffffff;
+  --v-surface-sunk: #efefe7;
+  --v-surface-hover: #f3f3eb;
+  --v-border: #e2e4d9;
+  --v-border-strong: var(--v-neutral-300);
+  --v-text: #282e24;
+  --v-text-muted: #686f60;
+  --v-text-subtle: #747b6b;
+  --v-text-onaccent: #ffffff;
 
   /* --- accent derivations --- */
-  --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, white);
+  --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, black);
   --v-accent-press: color-mix(in oklab, var(--v-accent) 74%, black);
-  --v-accent-soft:  color-mix(in srgb, var(--v-accent) 14%, transparent);
-  --v-accent-line:  color-mix(in srgb, var(--v-accent) 42%, transparent);
-  --v-accent-text:  color-mix(in oklab, var(--v-accent) 82%, white);
-  --v-ring:         color-mix(in srgb, var(--v-accent) 40%, transparent);
+  --v-accent-soft: color-mix(in srgb, var(--v-accent) 14%, transparent);
+  --v-accent-line: color-mix(in srgb, var(--v-accent) 42%, transparent);
+  --v-accent-text: color-mix(in oklab, var(--v-accent) 82%, black);
+  --v-ring: color-mix(in srgb, var(--v-accent) 40%, transparent);
 
   /* --- radius --- */
-  --v-radius-xs: 4px;
-  --v-radius-sm: 6px;
-  --v-radius-md: 8px;
-  --v-radius-lg: 14px;
-  --v-radius-xl: 18px;
-  --v-radius-2xl: 24px;
+  --v-radius-xs: 6px;
+  --v-radius-sm: 9px;
+  --v-radius-md: 12px;
+  --v-radius-lg: 18px;
+  --v-radius-xl: 24px;
+  --v-radius-2xl: 30px;
 
-  /* --- elevation: a hairline ring plus ambient darkness, not a soft
-         drop shadow. On a dark ground a blurred shadow reads as smudge. --- */
-  --v-shadow-low:  0 0 0 1px var(--v-neutral-800);
-  --v-shadow-mid:  0 0 0 1px var(--v-neutral-700), 0 6px 18px rgba(0, 0, 0, 0.55);
-  --v-shadow-high: 0 0 0 1px var(--v-neutral-500), 0 16px 40px rgba(0, 0, 0, 0.65);
+  /* --- subtle borders and soft elevation --- */
+  --v-shadow-low: 0 0 0 1px var(--v-border), 0 2px 4px #29311b04;
+  --v-shadow-mid: 0 0 0 1px var(--v-border), 0 8px 24px -10px #29311b20;
+  --v-shadow-high: 0 0 0 1px var(--v-border), 0 20px 60px -16px #29311b35;
 
   /* --- motion --- */
   --v-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
@@ -93,49 +75,62 @@
   --v-dur-slow: 420ms;
 }
 
-/* Light palette, scoped to an element rather than the document: the wall
-   builder renders a light preview inside the dark app, and the embed uses
-   the identical block inside its shadow root. */
+/* Recompute derived colors at custom space accents rather than inheriting
+   values already resolved against the document brand color. */
+[style*="--v-accent"] {
+  --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, black);
+  --v-accent-press: color-mix(in oklab, var(--v-accent) 74%, black);
+  --v-accent-soft: color-mix(in srgb, var(--v-accent) 12%, transparent);
+  --v-accent-line: color-mix(in srgb, var(--v-accent) 42%, transparent);
+  --v-accent-text: color-mix(in oklab, var(--v-accent) 78%, black);
+  --v-ring: color-mix(in srgb, var(--v-accent) 40%, transparent);
+}
+
+/* Explicit palettes for customer wall previews. */
 [data-theme="light"] {
-  --v-bg:            #ffffff;
-  --v-surface:       #ffffff;
-  --v-surface-sunk:  var(--v-neutral-100);
+  --v-bg: #ffffff;
+  --v-surface: #ffffff;
+  --v-surface-sunk: var(--v-neutral-100);
   --v-surface-hover: var(--v-neutral-100);
-  --v-border:        color-mix(in srgb, #292b31 14%, transparent);
+  --v-border: color-mix(in srgb, #292b31 14%, transparent);
   --v-border-strong: var(--v-neutral-300);
-  --v-text:          #16171d;
-  --v-text-muted:    var(--v-neutral-700);
-  --v-text-subtle:   var(--v-neutral-600);
+  --v-text: #16171d;
+  --v-text-muted: var(--v-neutral-700);
+  --v-text-subtle: var(--v-neutral-600);
   --v-text-onaccent: #ffffff;
   --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, black);
   --v-accent-press: color-mix(in oklab, var(--v-accent) 74%, black);
-  --v-accent-soft:  color-mix(in srgb, var(--v-accent) 12%, white);
-  --v-accent-line:  color-mix(in srgb, var(--v-accent) 34%, transparent);
-  --v-accent-text:  color-mix(in oklab, var(--v-accent) 78%, black);
-  --v-shadow-low:  0 1px 2px rgba(22, 24, 38, 0.07);
-  --v-shadow-mid:  0 1px 2px rgba(22, 24, 38, 0.05), 0 6px 16px -4px rgba(22, 24, 38, 0.12);
-  --v-shadow-high: 0 2px 4px rgba(22, 24, 38, 0.05), 0 16px 40px -12px rgba(22, 24, 38, 0.22);
+  --v-accent-soft: color-mix(in srgb, var(--v-accent) 12%, white);
+  --v-accent-line: color-mix(in srgb, var(--v-accent) 34%, transparent);
+  --v-accent-text: color-mix(in oklab, var(--v-accent) 78%, black);
+  --v-shadow-low: 0 1px 2px rgba(22, 24, 38, 0.07);
+  --v-shadow-mid:
+    0 1px 2px rgba(22, 24, 38, 0.05), 0 6px 16px -4px rgba(22, 24, 38, 0.12);
+  --v-shadow-high:
+    0 2px 4px rgba(22, 24, 38, 0.05), 0 16px 40px -12px rgba(22, 24, 38, 0.22);
 }
 
 [data-theme="dark"] {
-  --v-bg:            #161826;
-  --v-surface:       #232532;
-  --v-surface-sunk:  #12141d;
+  --v-bg: #161826;
+  --v-surface: #232532;
+  --v-surface-sunk: #12141d;
   --v-surface-hover: #2b2e3d;
-  --v-border:        color-mix(in srgb, #e9e9ed 16%, transparent);
+  --v-border: color-mix(in srgb, #e9e9ed 16%, transparent);
   --v-border-strong: var(--v-neutral-700);
-  --v-text:          #e9e9ed;
-  --v-text-muted:    color-mix(in srgb, #e9e9ed 70%, transparent);
-  --v-text-subtle:   color-mix(in srgb, #e9e9ed 52%, transparent);
+  --v-text: #e9e9ed;
+  --v-text-muted: color-mix(in srgb, #e9e9ed 70%, transparent);
+  --v-text-subtle: color-mix(in srgb, #e9e9ed 52%, transparent);
   --v-text-onaccent: #14121f;
   --v-accent-hover: color-mix(in oklab, var(--v-accent) 86%, white);
   --v-accent-press: color-mix(in oklab, var(--v-accent) 74%, black);
-  --v-accent-soft:  color-mix(in srgb, var(--v-accent) 14%, transparent);
-  --v-accent-line:  color-mix(in srgb, var(--v-accent) 42%, transparent);
-  --v-accent-text:  color-mix(in oklab, var(--v-accent) 82%, white);
-  --v-shadow-low:  0 0 0 1px var(--v-neutral-800);
-  --v-shadow-mid:  0 0 0 1px var(--v-neutral-700), 0 6px 18px rgba(0, 0, 0, 0.55);
-  --v-shadow-high: 0 0 0 1px var(--v-neutral-500), 0 16px 40px rgba(0, 0, 0, 0.65);
+  --v-accent-soft: color-mix(in srgb, var(--v-accent) 14%, transparent);
+  --v-accent-line: color-mix(in srgb, var(--v-accent) 42%, transparent);
+  --v-accent-text: color-mix(in oklab, var(--v-accent) 82%, white);
+  --v-shadow-low: 0 0 0 1px var(--v-neutral-800);
+  --v-shadow-mid:
+    0 0 0 1px var(--v-neutral-700), 0 6px 18px rgba(0, 0, 0, 0.55);
+  --v-shadow-high:
+    0 0 0 1px var(--v-neutral-500), 0 16px 40px rgba(0, 0, 0, 0.65);
 }
 
 /* ============================================================
@@ -190,7 +185,8 @@
 
   --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-mono:
+    var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 
   --ease-out-quint: var(--v-ease-out);
   --ease-smooth: var(--v-ease-in-out);
@@ -213,12 +209,14 @@
     background-color: var(--v-bg);
     color: var(--v-text);
     font-family: var(--font-sans);
-    font-feature-settings: "cv05" 1, "ss01" 1, "cv11" 1;
+    font-feature-settings:
+      "cv05" 1,
+      "ss01" 1,
+      "cv11" 1;
     -webkit-font-smoothing: antialiased;
   }
 
-  /* Nocturne headings: Inter at 500, tight tracking, tight leading. The
-     weight is what separates a heading from body -- not a second typeface. */
+  /* Compact, readable application headings. */
   .font-display {
     font-weight: 500;
     line-height: 1.12;
@@ -248,7 +246,7 @@
 }
 
 @layer utilities {
-  /* A Nocturne signature: freestanding rules fade to transparent at both
+  /* Freestanding rules fade to transparent at both
      ends rather than stopping cleanly. Box outlines and in-control
      separators stay solid. */
   .rule-fade {
@@ -295,12 +293,26 @@
   }
   /* Edges fade so cards enter and leave rather than being cut off. */
   .marquee-mask {
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 6%,
+      #000 94%,
+      transparent
+    );
+    mask-image: linear-gradient(
+      90deg,
+      transparent,
+      #000 6%,
+      #000 94%,
+      transparent
+    );
   }
 
   @keyframes v-shimmer {
-    100% { transform: translateX(100%); }
+    100% {
+      transform: translateX(100%);
+    }
   }
   .skeleton {
     position: relative;
@@ -319,5 +331,331 @@
       transparent
     );
     animation: v-shimmer 1.6s infinite;
+  }
+}
+
+/* Shared brand and application chrome. */
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 27px;
+  font-weight: 650;
+  letter-spacing: -1.5px;
+  color: #282e24;
+  line-height: 1;
+}
+.brand-mark {
+  display: grid;
+  place-items: center;
+  position: relative;
+  width: 29px;
+  height: 29px;
+  border-radius: 9px;
+  background: #b84925;
+  color: #fff8ef;
+  font-size: 27px;
+  font-family: Georgia, serif;
+  font-style: italic;
+  letter-spacing: -3px;
+  padding-right: 4px;
+}
+.brand-mark > span {
+  font-size: 14px;
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-style: normal;
+  color: #b84925;
+  background: #faf9f6;
+  border-radius: 50%;
+  line-height: 1;
+}
+.brand-period {
+  color: #b84925;
+}
+.brand-light {
+  color: #fff;
+}
+.workspace-shell {
+  background:
+    radial-gradient(ellipse at 90% 0, #e7ecda88, transparent 45%), var(--v-bg);
+}
+.workspace-sidebar {
+  background: #fafaf6;
+  padding: 30px 16px 20px;
+  display: flex;
+  flex-direction: column;
+}
+.workspace-sidebar > .brand {
+  padding: 0 13px;
+  margin-bottom: 38px;
+  width: fit-content;
+}
+.sidebar-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  color: #929786;
+  padding: 0 13px;
+  margin-bottom: 12px;
+}
+.workspace-sidebar nav a {
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 12px;
+  gap: 12px;
+}
+.workspace-sidebar nav a[aria-current="page"] {
+  background: #e9eddc;
+  color: #35452d;
+  font-weight: 600;
+  box-shadow: inset 3px 0 #a1b477;
+}
+.sidebar-bottom {
+  margin-top: auto;
+  padding: 20px 10px 4px;
+}
+.sidebar-note {
+  background: #eeefe5;
+  border: 1px solid #e4e6d8;
+  border-radius: 15px;
+  padding: 19px;
+  margin-bottom: 22px;
+}
+.sidebar-note > span {
+  font-size: 27px;
+  color: #b84925;
+}
+.sidebar-note > strong {
+  display: block;
+  font-size: 12px;
+  margin: 9px 0 6px;
+}
+.sidebar-note > p {
+  font-size: 10px;
+  color: #757d69;
+  line-height: 1.7;
+}
+.sidebar-note > a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  margin-top: 15px;
+  color: #a54524;
+}
+.sidebar-bottom > a {
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #727b66;
+}
+.workspace-topbar {
+  height: 74px;
+  border-bottom: 1px solid #e2e4d9;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 38px;
+  background: #ffffff70;
+  backdrop-filter: blur(10px);
+}
+.workspace-topbar > span {
+  font-size: 11px;
+  color: #858b7a;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.workspace-topbar > span > b {
+  font-weight: 500;
+  color: #414b35;
+}
+.workspace-topbar > a {
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #68765c;
+}
+.workspace-content {
+  animation: v-settle 0.4s var(--v-ease-out);
+}
+.dashboard-intro {
+  background: #e8eddd;
+  border: 1px solid #dce4ce;
+  border-radius: 20px;
+  padding: 30px 32px;
+  position: relative;
+  overflow: hidden;
+  margin: 0 0 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+}
+.dashboard-intro > div {
+  position: relative;
+  z-index: 1;
+  max-width: 410px;
+}
+.dashboard-intro .eyebrow-label {
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: #707d5d;
+}
+.dashboard-intro h2 {
+  font-size: 30px;
+  letter-spacing: -0.055em;
+  line-height: 1.15;
+  margin: 13px 0;
+  color: #35402b;
+}
+.dashboard-intro h2 em {
+  font-family: Georgia, serif;
+  color: #a34d2c;
+  font-weight: 400;
+}
+.dashboard-intro p {
+  font-size: 12px;
+  line-height: 1.8;
+  color: #75816a;
+}
+.dashboard-intro > span {
+  font-size: 125px;
+  line-height: 1;
+  color: #bdcc9b;
+  transform: rotate(15deg);
+}
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  border: 1px solid #e1e5d8;
+  border-radius: 15px;
+  background: #ffffffb3;
+  padding: 20px 23px;
+}
+.stat-card > span {
+  display: block;
+  font-size: 10px;
+  color: #7a856d;
+}
+.stat-card > strong {
+  display: block;
+  font-weight: 500;
+  font-size: 32px;
+  letter-spacing: -0.06em;
+  margin-top: 7px;
+}
+.stat-card:last-child > strong {
+  color: #658546;
+}
+.spaces-heading {
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 14px;
+}
+.space-tile {
+  position: relative;
+  overflow: hidden;
+}
+.space-tile:before {
+  content: "";
+  display: block;
+  height: 4px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: var(--v-accent);
+  opacity: 0.6;
+}
+.space-tile:hover {
+  transform: translateY(-3px);
+}
+.testimonial-card {
+  background-image: linear-gradient(
+    145deg,
+    color-mix(in srgb, var(--v-accent) 3%, transparent),
+    transparent 60%
+  );
+}
+.collection-shell {
+  background:
+    radial-gradient(ellipse at 50% 0%, #e7ecd9, transparent 65%), var(--v-bg);
+  min-height: 100dvh;
+  padding: 1px 0;
+}
+.collection-shell > main {
+  background: var(--v-surface);
+  border: 1px solid var(--v-border);
+  border-radius: 26px;
+  margin: 42px auto;
+  padding: 36px;
+  box-shadow: 0 20px 70px -30px #35432520;
+}
+@media (max-width: 767px) {
+  .workspace-sidebar {
+    padding: 20px 16px 8px;
+  }
+  .workspace-sidebar > .brand {
+    margin-bottom: 20px;
+    padding-left: 5px;
+  }
+  .sidebar-label,
+  .sidebar-bottom {
+    display: none;
+  }
+  .workspace-sidebar nav a {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
+  .workspace-topbar {
+    height: 52px;
+    padding: 0 24px;
+  }
+  .workspace-topbar > span {
+    font-size: 10px;
+  }
+  .workspace-topbar > a {
+    font-size: 9px;
+  }
+  .dashboard-intro {
+    padding: 25px;
+  }
+  .dashboard-intro h2 {
+    font-size: 27px;
+  }
+  .dashboard-intro > span {
+    font-size: 70px;
+    position: absolute;
+    right: 15px;
+    top: 18px;
+    opacity: 0.45;
+  }
+  .dashboard-intro p {
+    max-width: 90%;
+  }
+  .stat-grid {
+    gap: 8px;
+  }
+  .stat-card {
+    padding: 14px 12px;
+  }
+  .stat-card > span {
+    font-size: 8px;
+  }
+  .stat-card > strong {
+    font-size: 27px;
+  }
+  .collection-shell > main {
+    margin: 20px 14px;
+    padding: 26px 22px;
   }
 }

@@ -1,7 +1,12 @@
+import { cardStyle, WALL_TEMPLATE_CSS } from "./wall-templates";
 import type { WallPayload } from "@/lib/database.types";
 
 const esc = (s: string) =>
-  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 
 function initials(name: string) {
   return name
@@ -35,6 +40,7 @@ export function staticHtmlExport(payload: WallPayload): string {
   const ink = dark ? "#e9e9ed" : "#16171d";
   const muted = dark ? "rgba(233,233,237,.7)" : "#595d6c";
   const accent = wall.accent_color;
+  const appearance = cardStyle(wall.card_style);
 
   // Carousel needs JS to be worth anything, so a static export renders it as a
   // grid rather than shipping something that cannot scroll.
@@ -54,7 +60,14 @@ export function staticHtmlExport(payload: WallPayload): string {
             } controls preload="none" playsinline></video>`
           : "";
 
-      return `      <figure class="vouch-card">
+      const portrait = ["portrait", "glass", "editorial"].includes(appearance)
+        ? `<div class="vouch-portrait" aria-hidden="true">${t.author_avatar_url ? `<img src="${esc(t.author_avatar_url)}" alt="" loading="lazy">` : `<span>${esc(initials(t.author_name))}</span>`}</div>`
+        : "";
+      const decoration =
+        appearance === "bold" || appearance === "bubble"
+          ? '<span class="vouch-decoration" aria-hidden="true">“</span>'
+          : "";
+      return `      <figure class="vouch-card">${portrait}${decoration}
 ${video ? `        ${video}\n` : ""}${
         wall.show_ratings && t.rating ? `        ${stars(t.rating)}\n` : ""
       }${t.body ? `        <blockquote class="vouch-quote">${esc(t.body)}</blockquote>\n` : ""}        <figcaption class="vouch-by">
@@ -69,14 +82,14 @@ ${video ? `        ${video}\n` : ""}${
     .join("\n");
 
   return `<!-- Vouch wall — static export. Paste anywhere HTML is allowed. -->
-<div class="vouch-wall">
+<div class="vouch-wall vouch-design" data-card-style="${appearance}">
   <style>
-    .vouch-wall{--vouch-accent:${accent};font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:${ink};}
+    .vouch-wall{--bg:${bg};--vouch-accent:${accent};font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:${ink};}
     .vouch-wall *{box-sizing:border-box;}
     .vouch-grid{column-count:${columns};column-gap:16px;}
     @media (max-width:900px){.vouch-grid{column-count:${Math.min(2, columns)};}}
     @media (max-width:600px){.vouch-grid{column-count:1;}}
-    .vouch-card{break-inside:avoid;margin:0 0 16px;padding:20px;background:${bg};border:1px solid ${line};border-radius:8px;}
+    .vouch-card{break-inside:avoid;margin:0 0 16px;padding:20px;background:${bg};border:1px solid ${line};border-radius:18px;}
     .vouch-video{width:100%;border-radius:10px;margin-bottom:14px;background:#000;display:block;}
     .vouch-stars{color:var(--vouch-accent);letter-spacing:2px;font-size:14px;margin-bottom:10px;}
     .vouch-star-off{opacity:.28;}
@@ -86,8 +99,9 @@ ${video ? `        ${video}\n` : ""}${
     .vouch-avatar-fallback{display:flex;align-items:center;justify-content:center;background:color-mix(in oklab,var(--vouch-accent) 16%,transparent);color:var(--vouch-accent);font-size:13px;font-weight:600;}
     .vouch-name{display:block;font-size:13.5px;font-weight:600;line-height:1.2;color:${ink};}
     .vouch-meta{display:block;font-size:12.5px;line-height:1.3;color:${muted};}
+    ${WALL_TEMPLATE_CSS}
   </style>
-  <div class="vouch-grid">
+  <div class="vouch-grid ${wall.layout === "single" ? "" : "vouch-masonry"}">
 ${cards}
   </div>
 </div>`;

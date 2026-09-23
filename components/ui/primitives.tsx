@@ -20,13 +20,13 @@ export function Card({
 }
 
 /* ---------------- Badge ---------------- */
-/* Nocturne tags are solid chips off the ramps, not tinted outlines. */
+/* Semantic badges derive from the current theme. */
 const tones = {
-  neutral: "bg-n800 text-n100",
-  pending: "bg-[color-mix(in_srgb,var(--v-warning)_28%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-warning)_92%,white)]",
-  approved: "bg-[color-mix(in_srgb,var(--v-success)_26%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-success)_92%,white)]",
-  rejected: "bg-[color-mix(in_srgb,var(--v-danger)_24%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-danger)_92%,white)]",
-  accent: "bg-[var(--v-accent-800)] text-[var(--v-accent-100)]",
+  neutral: "bg-sunk text-muted",
+  pending: "bg-[color-mix(in_srgb,var(--v-warning)_28%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-warning)_88%,var(--v-text))]",
+  approved: "bg-[color-mix(in_srgb,var(--v-success)_26%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-success)_88%,var(--v-text))]",
+  rejected: "bg-[color-mix(in_srgb,var(--v-danger)_24%,var(--v-surface))] text-[color-mix(in_srgb,var(--v-danger)_88%,var(--v-text))]",
+  accent: "bg-accent-soft text-accent-text",
   outline: "border border-accent text-accent",
 } as const;
 

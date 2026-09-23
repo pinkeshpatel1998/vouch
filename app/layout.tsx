@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-/* Nocturne uses one typeface for everything; weight does the work that a
-   second family used to. See DESIGN.md for why this replaced Fraunces. */
+/* Inter keeps product screens clear; editorial serif accents live in marketing. */
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",

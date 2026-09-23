@@ -1,3 +1,4 @@
+import { cardStyle } from "@/lib/wall-templates";
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { supabaseConfigured } from "@/lib/supabase/env";
@@ -26,7 +27,10 @@ export async function OPTIONS() {
   return new NextResponse(null, { status: 204, headers: CORS });
 }
 
-export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string }> }) {
+export async function GET(
+  req: NextRequest,
+  ctx: { params: Promise<{ id: string }> },
+) {
   const { id } = await ctx.params;
 
   if (id === "demo") {
@@ -44,6 +48,7 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
           layout === "carousel" || layout === "single" || layout === "masonry"
             ? layout
             : demoWallPayload.wall.layout,
+        card_style: cardStyle(q.get("template")),
         carousel_style:
           style === "marquee" || style === "spotlight" || style === "rail"
             ? style
@@ -77,10 +82,16 @@ export async function GET(req: NextRequest, ctx: { params: Promise<{ id: string 
   const { data, error } = await supabase.rpc("wall_payload", { p_wall_id: id });
 
   if (error) {
-    return NextResponse.json({ error: "lookup_failed" }, { status: 502, headers: CORS });
+    return NextResponse.json(
+      { error: "lookup_failed" },
+      { status: 502, headers: CORS },
+    );
   }
   if (!data) {
-    return NextResponse.json({ error: "not_found" }, { status: 404, headers: CORS });
+    return NextResponse.json(
+      { error: "not_found" },
+      { status: 404, headers: CORS },
+    );
   }
 
   return NextResponse.json(data, { headers: { ...CORS, ...CACHE } });

@@ -1,184 +1,540 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { buttonStyles } from "@/components/ui/button";
+import { Brand, Arrow } from "@/components/brand";
+import { TemplatePicker } from "@/components/wall/template-picker";
+import { type CardStyle } from "@/lib/wall-templates";
 import { WallRender } from "@/components/wall/wall-render";
 import { sampleTestimonials } from "@/lib/sample";
 import type { WallPayload } from "@/lib/database.types";
+import "./marketing.css";
 
-/* Sample content, labelled as such under the wall. */
-const demoWall: WallPayload = {
-  wall: {
-    id: "demo",
-    layout: "masonry",
-    carousel_style: "rail",
-    theme: "dark",
-    accent_color: "#9184d9",
-    show_ratings: true,
-    include_video: false,
-  },
-  space: { name: "Vouch", logo_url: null },
-  testimonials: sampleTestimonials.filter((t) => t.type === "text").slice(0, 4),
-};
-
-const CHIPS = ["Video in-browser", "One script tag", "No login to submit"];
-
-const STEPS = [
-  {
-    n: "STEP 01",
-    title: "Send the link",
-    body: "A branded page with your question on it. Or a QR code, if you are standing in front of them.",
-  },
-  {
-    n: "STEP 02",
-    title: "Approve the good ones",
-    body: "Text and video land in one inbox. Fix the typos, reject the vague ones.",
-  },
-  {
-    n: "STEP 03",
-    title: "Paste one line",
-    body: "A shadow-DOM widget that cannot break your page, in three layouts and your accent colour.",
-  },
+const examples = sampleTestimonials
+  .filter((t) => t.type === "text")
+  .slice(0, 6)
+  .map((t, i) => ({
+    ...t,
+    author_avatar_url: `/images/portrait-${(i % 3) + 1}.jpg`,
+  }));
+const layouts = [
+  { key: "masonry", label: "Wall of love" },
+  { key: "carousel", label: "Carousel" },
+  { key: "single", label: "Spotlight" },
+] as const;
+const faqs = [
+  [
+    "Do my customers need an account?",
+    "No. They open your collection link, write or record their testimonial, and submit. No sign-up, downloads, or extra steps.",
+  ],
+  [
+    "Can I choose which testimonials go live?",
+    "Absolutely. Every submission arrives in your inbox for review. Approve the ones you want to share, edit typos, and keep the rest private.",
+  ],
+  [
+    "Will it work with my website?",
+    "If your website supports a custom HTML or embed block, you can add a Vouch wall with one snippet. Choose your layout, match your colors, and copy the code.",
+  ],
+  [
+    "Can I collect video testimonials too?",
+    "Yes. Customers can record a video directly in their browser. Text and video testimonials live together in the same inbox.",
+  ],
 ];
 
-function Mark() {
+function Rating() {
   return (
-    <span className="grid size-7 shrink-0 place-items-center rounded-md bg-accent-soft">
-      <svg viewBox="0 0 20 20" className="size-4 text-accent" fill="currentColor" aria-hidden>
-        <path d="M10 1.6a8.4 8.4 0 1 1 0 16.8 8.4 8.4 0 0 1 0-16.8Zm3.9 5.7a.9.9 0 0 0-1.28 0L9 10.93 7.38 9.3A.9.9 0 0 0 6.1 10.6l2.26 2.26a.9.9 0 0 0 1.28 0l4.26-4.27a.9.9 0 0 0 0-1.28Z" />
-      </svg>
+    <span className="demo-stars" aria-label="5 out of 5 stars">
+      ★★★★★
     </span>
+  );
+}
+function Person({
+  image = 1,
+  name,
+  role,
+}: {
+  image?: number;
+  name: string;
+  role: string;
+}) {
+  return (
+    <div className="demo-person">
+      <img
+        src={`/images/portrait-${image}.jpg`}
+        alt=""
+        width="38"
+        height="38"
+      />
+      <div>
+        <strong>{name}</strong>
+        <span>{role}</span>
+      </div>
+      <span className="person-check" aria-label="Example testimonial">
+        ✓
+      </span>
+    </div>
   );
 }
 
 export default function Marketing() {
+  const [layout, setLayout] = useState<"masonry" | "carousel" | "single">(
+    "masonry",
+  );
+  const [appearance, setAppearance] = useState<CardStyle>("classic");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const demoWall: WallPayload = {
+    wall: {
+      id: "demo",
+      layout,
+      carousel_style: "rail",
+      card_style: appearance,
+      theme: "light",
+      accent_color: "#b84925",
+      show_ratings: true,
+      include_video: false,
+    },
+    space: { name: "Vouch", logo_url: null },
+    testimonials: examples,
+  };
+
   return (
-    <div className="min-h-dvh">
-      <nav className="mx-auto flex max-w-6xl items-center gap-4 px-6 py-5">
-        <Mark />
-        <span className="mr-auto font-display text-[18px] text-ink">Vouch</span>
-        <Link href="/styleguide" className="hidden text-[14px] text-muted hover:text-accent sm:block">
-          Design system
-        </Link>
-        <Link href="/app" className={buttonStyles("primary", "sm")}>
-          Open the app
-        </Link>
+    <div className="marketing">
+      <nav className="landing-nav" aria-label="Main navigation">
+        <Brand />
+        <div className={`nav-links ${menuOpen ? "nav-open" : ""}`}>
+          <a href="#how-it-works" onClick={() => setMenuOpen(false)}>
+            How it works
+          </a>
+          <a href="#showcase" onClick={() => setMenuOpen(false)}>
+            The good words
+          </a>
+          <a href="#questions" onClick={() => setMenuOpen(false)}>
+            FAQs
+          </a>
+        </div>
+        <div className="nav-actions">
+          <Link className="login-link" href="/app">
+            Log in
+          </Link>
+          <Link className="pill pill-dark nav-cta" href="/app">
+            Start collecting <Arrow diagonal />
+          </Link>
+          <button
+            className="menu-toggle"
+            aria-label="Toggle navigation"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen(!menuOpen)}
+          >
+            {menuOpen ? "✕" : "☰"}
+          </button>
+        </div>
       </nav>
 
-      {/* ---------- hero ---------- */}
-      <header className="mx-auto max-w-6xl px-6 pb-16 pt-6 sm:pt-12">
-        <div className="grid items-start gap-12 lg:grid-cols-[minmax(0,25rem)_1fr] lg:gap-16">
-          <div>
-            <h1 className="font-display text-[52px] leading-[1.02] text-ink sm:text-[60px]">
-              Ask once.
-            </h1>
-            <p className="mt-5 text-[16px] leading-relaxed text-muted">
-              Collect text and video testimonials through a link you send, approve the good ones
-              and paste one script tag. That is the whole product.
+      <main>
+        <section className="landing-hero" aria-labelledby="hero-title">
+          <div className="hero-glow" aria-hidden="true" />
+          <div className="hero-copy">
+            <p className="eyebrow">
+              <span /> GOOD WORK DESERVES GOOD WORDS
             </p>
-
-            <div className="mt-7 flex flex-wrap items-center gap-2.5">
-              <Link href="/app" className={buttonStyles("primary", "lg")}>
-                <svg viewBox="0 0 18 18" className="size-4" aria-hidden>
-                  <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z" />
-                  <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.26c-.8.54-1.84.86-3.04.86-2.34 0-4.32-1.58-5.03-3.7H.96v2.33A9 9 0 0 0 9 18Z" />
-                  <path fill="#FBBC05" d="M3.97 10.72a5.41 5.41 0 0 1 0-3.44V4.95H.96a9 9 0 0 0 0 8.1l3.01-2.33Z" />
-                  <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.9 11.42 0 9 0A9 9 0 0 0 .96 4.95l3.01 2.33C4.68 5.16 6.66 3.58 9 3.58Z" />
-                </svg>
-                Continue with Google
+            <h1 id="hero-title">
+              Let your customers
+              <br />
+              do the <em>talking.</em>
+              <span className="hero-spark" aria-hidden="true">
+                ✳
+              </span>
+            </h1>
+            <p className="hero-description">
+              Turn happy customers into your most convincing story.
+              <br className="desktop-break" /> Collect, curate, and share
+              testimonials that feel human.
+            </p>
+            <div className="hero-actions">
+              <Link href="/app" className="pill pill-orange">
+                Start your wall of love <Arrow diagonal />
               </Link>
-              <a href="/embed-layouts.html" className={buttonStyles("secondary", "lg")}>
-                See a live wall
+              <a href="#showcase" className="pill pill-outline">
+                <span className="small-play" aria-hidden="true">
+                  ▶
+                </span>{" "}
+                See it in action
               </a>
             </div>
-
-            <ul className="mt-7 flex flex-wrap gap-x-6 gap-y-2">
-              {CHIPS.map((c) => (
-                <li key={c} className="flex items-center gap-1.5 text-[12.5px] text-subtle">
-                  <svg viewBox="0 0 16 16" className="size-3 text-accent" fill="currentColor" aria-hidden>
-                    <path d="M13.4 4.3a.9.9 0 0 1 0 1.27l-6 6a.9.9 0 0 1-1.27 0L3.1 8.54a.9.9 0 0 1 1.27-1.27l2.4 2.4 5.36-5.37a.9.9 0 0 1 1.27 0Z" />
-                  </svg>
-                  {c}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="min-w-0">
-            <WallRender payload={demoWall} />
-            <p className="mt-3 text-[11.5px] text-subtle">
-              Sample content, rendered by the same component the embed ships.
+            <p className="hero-note">
+              Text & video <span>·</span> No account needed to submit{" "}
+              <span>·</span> Yours to make your own
             </p>
           </div>
-        </div>
-      </header>
 
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="rule-fade" />
-      </div>
-
-      {/* ---------- how it works ---------- */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-10 sm:grid-cols-3 sm:gap-8">
-          {STEPS.map((s) => (
-            <div key={s.n}>
-              <p className="text-[10px] uppercase tracking-[0.1em] text-accent">{s.n}</p>
-              <h2 className="mt-2 font-display text-[20px] text-ink">{s.title}</h2>
-              <p className="mt-2 text-[13.5px] leading-relaxed text-muted">{s.body}</p>
+          <div
+            className="testimonial-stage"
+            aria-label="Illustrative testimonial designs"
+          >
+            <div className="stage-note">
+              A little customer love.
+              <br />
+              <span>A lot of possibility.</span>
+              <svg viewBox="0 0 70 55" aria-hidden="true">
+                <path d="M5 5q45 0 45 38m-12-8 12 9 10-12" />
+              </svg>
             </div>
-          ))}
-        </div>
-      </section>
+            <article className="hero-card card-note">
+              <span className="big-quote" aria-hidden="true">
+                “
+              </span>
+              <Rating />
+              <p>
+                “The kind of tool you wish you’d found <em>sooner.</em> So
+                simple, so good.”
+              </p>
+              <Person
+                name="Ana K."
+                role="Small business, big ideas"
+                image={3}
+              />
+              <span className="card-sticker">a little love ♡</span>
+            </article>
+            <article className="hero-card card-portrait">
+              <img
+                src="/images/portrait-1.jpg"
+                alt="Portrait illustrating a customer story"
+                width="640"
+                height="800"
+              />
+              <span className="portrait-tag">
+                <span /> CUSTOMER STORIES
+              </span>
+              <div className="portrait-copy">
+                <Rating />
+                <p>
+                  “Okay, I’m
+                  <br />a little obsessed.”
+                </p>
+                <span>
+                  Priya R. <i>·</i> Founder & maker
+                </span>
+              </div>
+            </article>
+            <article className="hero-card card-dark">
+              <span className="quote-top">
+                WORDS THAT MEAN THE WORLD <span>↗</span>
+              </span>
+              <Rating />
+              <p>
+                Great work.
+                <br />
+                Real people.
+                <br />
+                <em>Happy customers.</em>
+              </p>
+              <div className="mini-rule" />
+              <Person
+                name="Marcus O."
+                role="Building something good"
+                image={2}
+              />
+            </article>
+            <article className="hero-card card-peach">
+              <div className="peach-heading">
+                <img
+                  src="/images/portrait-3.jpg"
+                  alt=""
+                  width="70"
+                  height="70"
+                />
+                <span aria-hidden="true">”</span>
+              </div>
+              <Rating />
+              <p>
+                “Finally, a home for all the nice things our customers say.”
+              </p>
+              <strong>Dana W.</strong>
+              <span className="peach-role">Design lead & detail person</span>
+            </article>
+            <div className="love-stamp" aria-hidden="true">
+              MADE OF
+              <br />
+              <span>♡</span>
+              <br />
+              GOOD WORDS
+            </div>
+          </div>
+          <p className="sample-label">
+            A preview of the possibilities. Illustrative stories & portraits.
+          </p>
+        </section>
 
-      <div className="mx-auto max-w-6xl px-6">
-        <div className="rule-fade" />
-      </div>
-
-      {/* ---------- what it replaces ---------- */}
-      <section className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid items-center gap-10 lg:grid-cols-2">
+        <section className="audience-strip" aria-label="Who Vouch is for">
+          <p>
+            FOR PEOPLE WHO CARE
+            <br />
+            ABOUT WHAT THEY MAKE
+          </p>
           <div>
-            <h2 className="font-display text-[32px] text-ink">
-              The four things you were paying for
-            </h2>
-            <p className="mt-4 text-[14.5px] leading-relaxed text-muted">
-              Senja and Testimonial.to are large products, but the job people pay for is narrow:
-              ask without it being awkward, capture video as well as text, publish only the good
-              ones, and display them without it looking bolted on.
-            </p>
-            <p className="mt-3 text-[14.5px] leading-relaxed text-muted">
-              That is the whole of Vouch. No importers, no email sequences, no Zapier.
-            </p>
+            ✳ <span>Independent creators</span>
           </div>
-          <div className="rounded-lg bg-surface p-6 shadow-mid sm:p-7">
-            <div className="flex items-baseline justify-between border-b border-line pb-4">
-              <span className="text-[13.5px] text-muted">Senja, Pro</span>
-              <span className="font-display text-[20px] text-subtle line-through">$29/mo</span>
-            </div>
-            <div className="flex items-baseline justify-between pt-4">
-              <span className="text-[13.5px] text-ink">Vouch</span>
-              <span className="font-display text-[36px] leading-none text-accent">Free</span>
-            </div>
-            <p className="mt-4 text-[12.5px] leading-relaxed text-subtle">
-              Built for the Build Games, September 2026. Self-hostable on a free Supabase and
-              Vercel tier.
-            </p>
+          <div>
+            ↗ <span>Growing businesses</span>
           </div>
-        </div>
-      </section>
+          <div>
+            ◈ <span>Thoughtful agencies</span>
+          </div>
+          <div>
+            ✺ <span>Big-hearted brands</span>
+          </div>
+        </section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-8">
-        <span className="flex items-center gap-2 text-[14px] text-subtle">
-          <Mark />
-          Vouch
-        </span>
-        <div className="flex items-center gap-5 text-[13px] text-muted">
-          <Link href="/app" className="hover:text-accent">
-            Dashboard
+        <section className="how-section section-wrap" id="how-it-works">
+          <div className="section-heading">
+            <div>
+              <p className="eyebrow">LESS CHASING. MORE SHARING.</p>
+              <h2>
+                From “thank you”
+                <br />
+                to <em>“take a look.”</em>
+              </h2>
+            </div>
+            <p>
+              You do the work worth talking about.
+              <br />
+              We make it easy to share the good words.
+            </p>
+          </div>
+          <div className="steps-grid">
+            <article className="step-card">
+              <div className="step-visual visual-link">
+                <div className="mini-collection">
+                  <span className="mini-flower">✳</span>
+                  <strong>Enjoying the experience?</strong>
+                  <p>We’d love to hear your story.</p>
+                  <div>
+                    <span>✎ Write a few words</span>
+                    <span>◉ Record a video</span>
+                  </div>
+                </div>
+                <span className="floating-link">
+                  ↗ &nbsp; Your link. Their story.
+                </span>
+              </div>
+              <div className="step-heading">
+                <span>01</span>
+                <h3>Make the first move.</h3>
+              </div>
+              <p>
+                Send one beautiful collection link. They can leave a few words
+                or record a video, right there.
+              </p>
+            </article>
+            <article className="step-card">
+              <div className="step-visual visual-inbox">
+                <div className="mini-review">
+                  <Person
+                    name="Priya just made your day"
+                    role="A new testimonial is waiting"
+                  />
+                  <p>
+                    “It’s the little details that make this so special. Can’t
+                    recommend it enough.”
+                  </p>
+                  <span className="approve-chip">
+                    ✓ &nbsp; Approved and ready to shine
+                  </span>
+                </div>
+                <span className="heart-bubble" aria-hidden="true">
+                  ♡
+                </span>
+              </div>
+              <div className="step-heading">
+                <span>02</span>
+                <h3>Keep the good stuff.</h3>
+              </div>
+              <p>
+                All your customer love in one calm inbox. Review, polish a typo,
+                and choose what goes live.
+              </p>
+            </article>
+            <article className="step-card">
+              <div className="step-visual visual-wall">
+                <div className="mini-wall">
+                  {[0, 1, 2, 3, 4, 5].map((i) => (
+                    <div key={i}>
+                      <span>★★★★★</span>
+                      <i />
+                      <i />
+                      <i />
+                      <b>
+                        <img
+                          src={`/images/portrait-${(i % 3) + 1}.jpg`}
+                          alt=""
+                        />
+                      </b>
+                    </div>
+                  ))}
+                </div>
+                <span className="floating-link">
+                  Your website, with more heart. ♡
+                </span>
+              </div>
+              <div className="step-heading">
+                <span>03</span>
+                <h3>Let the love live on.</h3>
+              </div>
+              <p>
+                Pick a layout, make it yours, and add it to your website. Your
+                customers take it from here.
+              </p>
+            </article>
+          </div>
+        </section>
+
+        <section className="showcase-section" id="showcase">
+          <div className="section-wrap">
+            <div className="showcase-heading">
+              <p className="eyebrow">REAL WORDS. REALLY GOOD LOOKING.</p>
+              <h2>
+                A wall of love.
+                <br />
+                <em>With your name on it.</em>
+              </h2>
+              <p>Not every story fits the same frame. Find yours.</p>
+            </div>
+            <TemplatePicker value={appearance} onChange={setAppearance} />
+            <div
+              className="layout-picker"
+              role="group"
+              aria-label="Testimonial layout"
+            >
+              {layouts.map((item) => (
+                <button
+                  key={item.key}
+                  aria-pressed={layout === item.key}
+                  onClick={() => setLayout(item.key)}
+                >
+                  <span aria-hidden="true">
+                    {item.key === "masonry"
+                      ? "▦"
+                      : item.key === "carousel"
+                        ? "▤"
+                        : "❞"}
+                  </span>
+                  {item.label}
+                </button>
+              ))}
+            </div>
+            <div className="live-wall">
+              <WallRender key={`${layout}-${appearance}`} payload={demoWall} />
+            </div>
+            <p className="sample-label">
+              Sample testimonials · Your words, colors, and personality go here.
+            </p>
+            <Link href="/app" className="text-link">
+              Make yourself at home <Arrow />
+            </Link>
+          </div>
+        </section>
+
+        <section className="feature-section section-wrap">
+          <div className="feature-manifesto">
+            <p className="eyebrow">SMALL DETAILS. BIG DIFFERENCE.</p>
+            <h2>
+              All the heart.
+              <br />
+              <em>None of the hassle.</em>
+            </h2>
+            <p>
+              For the solo makers, the small teams, and the people building
+              something they believe in. Your customer stories deserve better
+              than a forgotten screenshot.
+            </p>
+            <Link href="/app" className="pill pill-dark">
+              Meet your new happy place <Arrow diagonal />
+            </Link>
+            <span className="manifesto-flower" aria-hidden="true">
+              ✳
+            </span>
+          </div>
+          <div className="feature-list">
+            {[
+              [
+                "01",
+                "A face. A voice. A real person.",
+                "Collect text and video together. Because the best stories come in more than one format.",
+              ],
+              [
+                "02",
+                "Feels like you, everywhere.",
+                "Your colors, your collection page, your choice of layouts. A natural part of your brand.",
+              ],
+              [
+                "03",
+                "One link. Zero friction.",
+                "No customer accounts, no apps to download. Just an easy way to say something nice.",
+              ],
+              [
+                "04",
+                "Your stories. Your say.",
+                "Nothing goes public without your approval. You decide what the world gets to see.",
+              ],
+            ].map(([n, title, body]) => (
+              <article key={n}>
+                <span>{n}</span>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{body}</p>
+                </div>
+                <Arrow diagonal />
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section id="questions" className="faq-section section-wrap">
+          <div>
+            <p className="eyebrow">A FEW GOOD QUESTIONS</p>
+            <h2>
+              Glad you
+              <br />
+              <em>asked.</em>
+            </h2>
+          </div>
+          <div className="faq-list">
+            {faqs.map(([q, a]) => (
+              <details key={q}>
+                <summary>
+                  {q}
+                  <span aria-hidden="true">+</span>
+                </summary>
+                <p>{a}</p>
+              </details>
+            ))}
+          </div>
+        </section>
+        <section className="closing-section">
+          <span className="closing-star" aria-hidden="true">
+            ✳
+          </span>
+          <p className="eyebrow">YOU’VE ALREADY EARNED THE LOVE.</p>
+          <h2>
+            Now give it
+            <br />
+            somewhere to <em>live.</em>
+          </h2>
+          <Link href="/app" className="pill pill-dark">
+            Start your wall of love <Arrow diagonal />
           </Link>
-          <Link href="/styleguide" className="hover:text-accent">
-            Design system
+          <p>Good words. Real people. A little more trust.</p>
+        </section>
+      </main>
+      <footer className="landing-footer">
+        <Brand />
+        <p>A little proof goes a long way.</p>
+        <div>
+          <a href="#how-it-works">How it works</a>
+          <Link href="/app">
+            Open the app <Arrow diagonal />
           </Link>
+          <span>© {new Date().getFullYear()} Vouch</span>
         </div>
       </footer>
     </div>

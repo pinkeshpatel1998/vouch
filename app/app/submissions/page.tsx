@@ -44,8 +44,7 @@ export default function SubmissionsPage() {
       </header>
 
       <div className="mb-5 flex flex-wrap items-center gap-3">
-        {/* Nocturne segmented control: one bordered group, inset ring on the
-            selected option rather than a filled pill. */}
+        {/* Status filters */}
         <div
           role="tablist"
           aria-label="Filter by status"
@@ -61,7 +60,7 @@ export default function SubmissionsPage() {
                 "px-3 py-1.5 text-[13px] transition-colors duration-[120ms]",
                 i > 0 && "border-l border-line",
                 filter === f.key
-                  ? "text-accent shadow-[inset_0_0_0_1px_var(--v-accent)]"
+                  ? "bg-accent-soft text-accent-text font-medium"
                   : "text-muted hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)]",
               )}
             >

@@ -5,6 +5,9 @@
  *   npx supabase gen types typescript --project-id <ref> > lib/database.types.ts
  */
 
+import type { CardStyle } from "./wall-templates";
+export type { CardStyle } from "./wall-templates";
+
 export type Layout = "masonry" | "carousel" | "single";
 /** Templates for the carousel layout. Not a fourth layout. */
 export type CarouselStyle = "rail" | "marquee" | "spotlight";
@@ -68,6 +71,7 @@ export type Wall = {
   space_id: string;
   layout: Layout;
   carousel_style: CarouselStyle;
+  card_style: CardStyle;
   theme: Theme;
   accent_color: string | null;
   max_items: number;
@@ -82,6 +86,7 @@ export type WallPayload = {
     id: string;
     layout: Layout;
     carousel_style: CarouselStyle;
+    card_style?: CardStyle;
     theme: Theme;
     accent_color: string;
     show_ratings: boolean;

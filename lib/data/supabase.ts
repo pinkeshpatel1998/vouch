@@ -94,7 +94,7 @@ export async function createSpace(input: {
         user_id: auth.user.id,
         slug,
         name: input.name.trim(),
-        ...(input.accent_color ? { accent_color: input.accent_color } : {}),
+        accent_color: input.accent_color ?? "#b84925",
       })
       .select()
       .single(),

@@ -4,6 +4,7 @@ import * as React from "react";
 import { cn } from "@/lib/cn";
 import { TestimonialCard, QuoteCard } from "@/components/testimonial-card";
 import { QuoteGlyph } from "@/components/ui/icons";
+import { cardStyle, WALL_TEMPLATE_CSS } from "@/lib/wall-templates";
 import type { WallPayload } from "@/lib/database.types";
 
 /**
@@ -51,8 +52,10 @@ export function WallRender({
     <div
       data-theme={themeAttr}
       style={{ ["--v-accent" as string]: wall.accent_color }}
-      className={cn("text-ink", className)}
+      data-card-style={cardStyle(wall.card_style)}
+      className={cn("vouch-design text-ink", className)}
     >
+      <style>{WALL_TEMPLATE_CSS}</style>
       {wall.layout === "masonry" && <Masonry payload={payload} />}
       {wall.layout === "carousel" && wall.carousel_style === "marquee" && (
         <Marquee payload={payload} />
@@ -72,9 +75,10 @@ export function WallRender({
 
 function Masonry({ payload }: { payload: WallPayload }) {
   return (
-    <div className="columns-1 gap-4 sm:columns-2 lg:columns-3 [&>*]:mb-4">
+    <div className="vouch-masonry">
       {payload.testimonials.map((t, i) => (
         <TestimonialCard
+          appearance={payload.wall.card_style}
           key={t.id}
           t={t}
           showRating={payload.wall.show_ratings}
@@ -112,7 +116,10 @@ function Carousel({ payload }: { payload: WallPayload }) {
   function page(dir: 1 | -1) {
     const el = scroller.current;
     if (!el) return;
-    el.scrollBy({ left: dir * Math.max(280, el.clientWidth * 0.8), behavior: "smooth" });
+    el.scrollBy({
+      left: dir * Math.max(280, el.clientWidth * 0.8),
+      behavior: "smooth",
+    });
   }
 
   return (
@@ -127,6 +134,7 @@ function Carousel({ payload }: { payload: WallPayload }) {
       >
         {payload.testimonials.map((t) => (
           <TestimonialCard
+            appearance={payload.wall.card_style}
             key={t.id}
             t={t}
             showRating={payload.wall.show_ratings}
@@ -157,10 +165,17 @@ function ArrowButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      aria-label={dir === "left" ? "Previous testimonials" : "Next testimonials"}
+      aria-label={
+        dir === "left" ? "Previous testimonials" : "Next testimonials"
+      }
       className="grid size-9 place-items-center rounded-full border border-line bg-surface text-muted shadow-low transition-[color,background-color,opacity] duration-[120ms] hover:bg-hover hover:text-ink disabled:opacity-35"
     >
-      <svg viewBox="0 0 16 16" className="size-4" fill="currentColor" aria-hidden>
+      <svg
+        viewBox="0 0 16 16"
+        className="size-4"
+        fill="currentColor"
+        aria-hidden
+      >
         {dir === "left" ? (
           <path d="M10.28 3.22a.75.75 0 0 1 0 1.06L6.56 8l3.72 3.72a.75.75 0 1 1-1.06 1.06L4.97 8.53a.75.75 0 0 1 0-1.06l4.25-4.25a.75.75 0 0 1 1.06 0Z" />
         ) : (
@@ -186,6 +201,7 @@ function Marquee({ payload }: { payload: WallPayload }) {
     <div className="flex shrink-0 gap-4" aria-hidden={clone || undefined}>
       {items.map((t) => (
         <TestimonialCard
+          appearance={payload.wall.card_style}
           key={(clone ? "c-" : "") + t.id}
           t={t}
           showRating={payload.wall.show_ratings}
@@ -233,7 +249,10 @@ function Spotlight({ payload }: { payload: WallPayload }) {
         const card = node as HTMLElement;
         const cardMid = card.offsetLeft + card.offsetWidth / 2;
         // 0 at dead centre, 1 once a full card-width away.
-        const d = Math.min(1, Math.abs(cardMid - mid) / (card.offsetWidth || 1));
+        const d = Math.min(
+          1,
+          Math.abs(cardMid - mid) / (card.offsetWidth || 1),
+        );
         card.style.transform = `scale(${(1 - d * 0.12).toFixed(3)})`;
         card.style.opacity = String((1 - d * 0.55).toFixed(3));
       });
@@ -260,6 +279,7 @@ function Spotlight({ payload }: { payload: WallPayload }) {
     >
       {payload.testimonials.map((t) => (
         <TestimonialCard
+          appearance={payload.wall.card_style}
           key={t.id}
           t={t}
           showRating={payload.wall.show_ratings}
@@ -279,7 +299,15 @@ function Single({ payload }: { payload: WallPayload }) {
 
   return (
     <div>
-      <QuoteCard t={current} />
+      {cardStyle(payload.wall.card_style) === "classic" ? (
+        <QuoteCard t={current} showRating={payload.wall.show_ratings} />
+      ) : (
+        <TestimonialCard
+          t={current}
+          appearance={payload.wall.card_style}
+          showRating={payload.wall.show_ratings}
+        />
+      )}
       {items.length > 1 && (
         <div
           role="tablist"
@@ -295,7 +323,9 @@ function Single({ payload }: { payload: WallPayload }) {
               onClick={() => setIndex(i)}
               className={cn(
                 "h-1.5 rounded-full transition-[width,background-color] duration-[220ms] ease-[var(--v-ease-out)]",
-                i === index ? "w-6 bg-accent" : "w-1.5 bg-line-strong hover:bg-muted",
+                i === index
+                  ? "w-6 bg-accent"
+                  : "w-1.5 bg-line-strong hover:bg-muted",
               )}
             />
           ))}

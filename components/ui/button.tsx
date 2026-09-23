@@ -1,26 +1,20 @@
 import * as React from "react";
 import { cn } from "@/lib/cn";
 
-/**
- * Nocturne buttons are outlined, not filled: the accent arrives as a border
- * and a text colour, with a soft wash on hover. On a dark ground a large
- * filled block reads as a slab, so weight comes from the edge instead.
- * `solid` exists for the rare case that needs to shout; use it sparingly.
- */
+/* Filled primary actions and quiet secondary controls. */
 type Variant = "primary" | "secondary" | "ghost" | "danger" | "solid";
 type Size = "sm" | "md" | "lg";
 
 const base =
   "inline-flex items-center justify-center gap-1.5 font-medium whitespace-nowrap " +
   "border border-transparent bg-transparent " +
-  "transition-[background-color,border-color,color] duration-[120ms] ease-[var(--v-ease-out)] " +
+  "transition-[background-color,border-color,color,transform,box-shadow] duration-[180ms] ease-[var(--v-ease-out)] " +
   "disabled:pointer-events-none disabled:opacity-45 " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent";
 
 const variants: Record<Variant, string> = {
   primary:
-    "text-accent border-accent hover:bg-[color-mix(in_srgb,var(--v-accent)_12%,transparent)] " +
-    "active:bg-[color-mix(in_srgb,var(--v-accent)_22%,transparent)]",
+    "bg-accent text-onaccent border-accent shadow-sm hover:bg-accent-hover hover:-translate-y-0.5 active:translate-y-0",
   secondary:
     "text-ink border-line hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)] " +
     "active:bg-[color-mix(in_srgb,var(--v-text)_14%,transparent)]",
@@ -35,8 +29,8 @@ const variants: Record<Variant, string> = {
 
 const sizes: Record<Size, string> = {
   sm: "h-8 px-2.5 text-[13px] rounded-md",
-  md: "h-9 px-3 text-[14px] rounded-md",
-  lg: "h-11 px-4 text-[15px] rounded-md",
+  md: "h-10 px-4 text-[14px] rounded-md",
+  lg: "h-12 px-5 text-[15px] rounded-md",
 };
 
 export interface ButtonProps

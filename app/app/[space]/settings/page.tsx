@@ -14,12 +14,12 @@ import { fileToScaledDataUrl } from "@/lib/image";
 import type { Space } from "@/lib/database.types";
 
 const ACCENTS = [
-  "#9184d9", // blurple — the system default
-  "#7fb2a6", // sage
-  "#c98f6a", // clay
-  "#6f8fd0", // steel
-  "#d98fa8", // rose
-  "#ded8cf", // bone
+  "#b84925", // burnt orange — the system default
+  "#52734d", // forest
+  "#a76b43", // clay
+  "#486c9c", // steel
+  "#aa526c", // rose
+  "#4d5548", // olive
 ];
 
 function Section({

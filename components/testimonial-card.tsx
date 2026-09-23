@@ -5,18 +5,28 @@ import { cn } from "@/lib/cn";
 import { Avatar } from "@/components/ui/primitives";
 import { Stars } from "@/components/ui/stars";
 import { useBlobUrl } from "@/lib/data/blobs";
+import type { CardStyle } from "@/lib/wall-templates";
 import type { WallItem } from "@/lib/sample";
 
 function Attribution({ t, compact }: { t: WallItem; compact?: boolean }) {
   const meta = [t.author_role, t.author_company].filter(Boolean).join(", ");
   return (
     <div className="flex items-center gap-2.5">
-      <Avatar name={t.author_name} src={t.author_avatar_url} size={compact ? 32 : 36} />
+      <Avatar
+        name={t.author_name}
+        src={t.author_avatar_url}
+        size={compact ? 32 : 36}
+        className="vouch-avatar"
+      />
       <div className="min-w-0">
-        <p className="truncate text-[13.5px] font-medium leading-tight text-ink">
+        <p className="vouch-name truncate text-[13.5px] font-medium leading-tight text-ink">
           {t.author_name}
         </p>
-        {meta && <p className="truncate text-[12.5px] leading-tight text-subtle">{meta}</p>}
+        {meta && (
+          <p className="vouch-meta truncate text-[12.5px] leading-tight text-subtle">
+            {meta}
+          </p>
+        )}
       </div>
     </div>
   );
@@ -25,7 +35,12 @@ function Attribution({ t, compact }: { t: WallItem; compact?: boolean }) {
 function PlayGlyph() {
   return (
     <span className="grid size-12 place-items-center rounded-full bg-accent text-onaccent shadow-mid transition-transform duration-[220ms] ease-[var(--v-ease-out)] group-hover:scale-110">
-      <svg viewBox="0 0 16 16" className="size-4 translate-x-px" fill="currentColor" aria-hidden>
+      <svg
+        viewBox="0 0 16 16"
+        className="size-4 translate-x-px"
+        fill="currentColor"
+        aria-hidden
+      >
         <path d="M4.5 2.6v10.8a.6.6 0 0 0 .92.5l8.4-5.4a.6.6 0 0 0 0-1L5.42 2.1a.6.6 0 0 0-.92.5Z" />
       </svg>
     </span>
@@ -41,31 +56,60 @@ function duration(s: number | null | undefined) {
 export function TestimonialCard({
   t,
   showRating = true,
+  appearance = "classic",
   className,
   style,
 }: {
   t: WallItem;
   showRating?: boolean;
+  appearance?: CardStyle;
   className?: string;
   style?: React.CSSProperties;
 }) {
   return (
     <figure
       className={cn(
-        "group break-inside-avoid rounded-lg border border-line bg-surface p-5 shadow-low",
+        "vouch-card testimonial-card group break-inside-avoid rounded-lg border border-line bg-surface p-5 shadow-low",
         "transition-[box-shadow,transform,border-color] duration-[220ms] ease-[var(--v-ease-out)]",
         "hover:-translate-y-0.5 hover:border-line-strong hover:shadow-mid",
         className,
       )}
       style={style}
     >
+      {(["portrait", "glass", "editorial"] as string[]).includes(
+        appearance,
+      ) && (
+        <div className="vouch-portrait" aria-hidden="true">
+          {t.author_avatar_url ? (
+            <img src={t.author_avatar_url} alt="" loading="lazy" />
+          ) : (
+            <span>
+              {t.author_name
+                .trim()
+                .split(/\s+/)
+                .slice(0, 2)
+                .map((n) => n[0])
+                .join("")}
+            </span>
+          )}
+        </div>
+      )}
+      {(appearance === "bold" || appearance === "bubble") && (
+        <span className="vouch-decoration" aria-hidden="true">
+          “
+        </span>
+      )}
       {t.type === "video" ? <CardVideo t={t} /> : null}
 
-      {showRating && t.rating ? <Stars value={t.rating} className="mb-3" /> : null}
+      {showRating && t.rating ? (
+        <Stars value={t.rating} className="vouch-stars mb-3" />
+      ) : null}
 
-      <blockquote className="text-[14.5px] leading-[1.62] text-ink">{t.body}</blockquote>
+      <blockquote className="vouch-quote text-[14.5px] leading-[1.62] text-ink">
+        {t.body}
+      </blockquote>
 
-      <figcaption className="mt-4 border-t border-line pt-4">
+      <figcaption className="vouch-by mt-5 border-t border-line pt-4">
         <Attribution t={t} />
       </figcaption>
     </figure>
@@ -73,7 +117,15 @@ export function TestimonialCard({
 }
 
 /* Single-quote layout. Display face earns its keep here. */
-export function QuoteCard({ t, className }: { t: WallItem; className?: string }) {
+export function QuoteCard({
+  t,
+  className,
+  showRating = true,
+}: {
+  t: WallItem;
+  className?: string;
+  showRating?: boolean;
+}) {
   return (
     <figure
       className={cn(
@@ -81,10 +133,17 @@ export function QuoteCard({ t, className }: { t: WallItem; className?: string })
         className,
       )}
     >
-      <svg viewBox="0 0 32 24" className="mb-5 h-6 text-accent/35" fill="currentColor" aria-hidden>
+      <svg
+        viewBox="0 0 32 24"
+        className="mb-5 h-6 text-accent/35"
+        fill="currentColor"
+        aria-hidden
+      >
         <path d="M0 24V13.2C0 5.9 4.2 1.1 11.6 0l1.2 3.9C8.4 5.2 6.2 7.6 6.2 11h5.2v13H0Zm18.6 0V13.2C18.6 5.9 22.8 1.1 30.2 0l1.2 3.9c-4.4 1.3-6.6 3.7-6.6 7.1h5.2v13h-11.4Z" />
       </svg>
-      {t.rating && <Stars value={t.rating} size={18} className="mb-4" />}
+      {showRating && t.rating && (
+        <Stars value={t.rating} size={18} className="mb-4" />
+      )}
       <blockquote className="font-display text-[26px] leading-[1.32] tracking-[-0.015em] text-ink sm:text-[32px]">
         {t.body}
       </blockquote>
@@ -111,7 +170,7 @@ function CardVideo({ t }: { t: WallItem }) {
         controls
         autoPlay
         playsInline
-        className="mb-4 aspect-[4/5] w-full rounded-md bg-black object-contain"
+        className="vouch-video mb-4 aspect-[4/5] w-full rounded-md bg-black object-contain"
       />
     );
   }
@@ -121,11 +180,16 @@ function CardVideo({ t }: { t: WallItem }) {
       type="button"
       onClick={() => setPlaying(true)}
       aria-label={`Play video testimonial from ${t.author_name}`}
-      className="relative mb-4 block aspect-[4/5] w-full overflow-hidden rounded-md bg-sunk"
+      className="vouch-video relative mb-4 block aspect-[4/5] w-full overflow-hidden rounded-md bg-sunk"
     >
       {t.poster_url ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={t.poster_url} alt="" className="size-full object-cover" loading="lazy" />
+        <img
+          src={t.poster_url}
+          alt=""
+          className="size-full object-cover"
+          loading="lazy"
+        />
       ) : (
         <span
           className="block size-full"

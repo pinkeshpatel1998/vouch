@@ -31,7 +31,7 @@ const TABS: Array<{ key: TestimonialStatus; label: string }> = [
 
 function RowSkeleton() {
   return (
-    <Card className="p-4">
+    <Card className="p-5 sm:p-6">
       <div className="flex gap-3">
         <Skeleton className="size-9 rounded-full" />
         <div className="flex-1 space-y-2">
@@ -145,7 +145,7 @@ export default function InboxPage({ params }: { params: Promise<{ space: string 
               "flex items-center gap-2 px-3.5 py-1.5 text-[13px] transition-colors duration-[120ms]",
               i > 0 && "border-l border-line",
               tab === t.key
-                ? "text-accent shadow-[inset_0_0_0_1px_var(--v-accent)]"
+                ? "bg-accent-soft text-accent-text font-medium"
                 : "text-muted hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)]",
             )}
           >
@@ -172,7 +172,7 @@ export default function InboxPage({ params }: { params: Promise<{ space: string 
         <ul className="space-y-3">
           {visible.map((t) => (
             <li key={t.id}>
-              <Card className="p-4">
+              <Card className="p-5 sm:p-6">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div className="flex min-w-0 gap-3">
                     <Avatar name={t.author_name} src={t.author_avatar_url} size={36} />

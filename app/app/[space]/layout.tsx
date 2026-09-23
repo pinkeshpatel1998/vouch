@@ -10,7 +10,7 @@ import { getSpace } from "@/lib/data";
 
 const TABS = [
   { slug: "inbox", label: "Inbox" },
-  { slug: "wall", label: "Wall" },
+  { slug: "wall", label: "Wall of love" },
   { slug: "settings", label: "Settings" },
 ] as const;
 
@@ -33,7 +33,7 @@ export default function SpaceLayout({
           : undefined
       }
     >
-      <header className="mx-auto max-w-5xl px-6 pt-8">
+      <header className="mx-auto max-w-6xl px-6 pt-8 sm:px-10">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex min-w-0 items-center gap-3">
             {loading ? (
@@ -76,7 +76,7 @@ export default function SpaceLayout({
                     "px-3.5 py-1.5 text-[13px] transition-colors duration-[120ms]",
                     i > 0 && "border-l border-line",
                     active
-                      ? "text-accent shadow-[inset_0_0_0_1px_var(--v-accent)]"
+                      ? "bg-accent-soft text-accent-text font-medium"
                       : "text-muted hover:bg-[color-mix(in_srgb,var(--v-text)_7%,transparent)]",
                   )}
                 >
